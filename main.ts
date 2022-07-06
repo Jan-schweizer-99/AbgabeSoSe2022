@@ -2,47 +2,107 @@ namespace Gemuesegarten {
 
     export let ctx: CanvasRenderingContext2D;
     window.addEventListener("load", hndLoad);
-    let mousepositon: Vector;
-    let circle: Path2D;
+    export let mousepositon: Vector;
+    let rect: DOMRect;
+    let scaleX: number;
+    let scaleY: number;
+
+    let tool: string = "fertilizer";
+
+    let block: Block[] = [];
+
+
+    //paths
+
+
+
+
+
+    //let circle: Path2D;
 
 
     function hndLoad(_event: Event): void {
+        let index: number = 0;
+
+        let startpositon: Vector = new Vector(820, 170);
+        let positon: Vector = new Vector(134, 67);
+        let positondown: Vector = new Vector(-134, 67);
+        for (let i: number = 0; i < 6; i++) {
+            for (let i: number = 0; i < 7; i++) {
+
+                block[index] = new Block(new Vector(startpositon.x + i * positon.x, startpositon.y + i * positon.y), index);
+                index++;
+            }
+            startpositon.add(positondown);
+        }
+
+
+
+        mousepositon = new Vector(0, 0);
         let canvas: HTMLCanvasElement = <HTMLCanvasElement>document.querySelector("#canvas");
-        
-        
+
+        let tool: HTMLInputElement = <HTMLInputElement>document.querySelector("div");
+
+        tool.addEventListener("change", handleChange);
+
+
         ctx = canvas.getContext("2d")!;
-        document.addEventListener("mousemove", setInfobox); //oeffne bei der Mausbewegung irgendwo im auf der Seite die handlemousemove funktion
-        
-       
-    }
-    export function drawWorker(): void {
-        circle = new Path2D();
-        ctx.scale(1, 1);
-        ctx.beginPath();
-        ctx.fillStyle = "rgb(0, 0, 255)";
-        ctx.strokeStyle = "rgb(0, 0, 255)";
-        ctx.lineWidth = 2;
-        ctx.lineCap = "butt";
-        ctx.lineJoin = "miter";
-        ctx.miterLimit = 4;
-        ctx.moveTo(0, 0);
-        ctx.lineTo (100, 0);
-        ctx.lineTo (100, 100);
-        ctx.lineTo (0, 100);
-        ctx.closePath();
-        
+        rect = canvas.getBoundingClientRect();
 
-        ctx.fill();
-        ctx.stroke();
-        ctx.resetTransform();
+        scaleX = canvas.width / rect.width; //for canvas click listener
+        scaleY = canvas.height / rect.height; //for canvas click listener
+
+
+        canvas.addEventListener("click", pathclicklisterner);
+        //canvas.addEventListener("mousemove", pathmouseoverlisterner); //path listener für auswahl
+        canvas.addEventListener("mousemove", setmouseposition); //oeffne bei der Mausbewegung irgendwo im auf der Seite die handlemousemove funktion
+
+
+
+        //drawWorker();
+        setInterval(update, 50);
 
     }
-    function setInfobox(_event: MouseEvent): void {
+    function handleChange(_event: Event): void {
 
-        mousepositon.x = _event.clientX;         //deklariere die X position mit der eventfunktion der Maus
-        mousepositon.y = _event.clientY;         //deklariere die y position mit der eventfunktion der Maus
+        let formData: FormData = new FormData(document.forms[0]);
+        for (let entry of formData) {
+            let item: HTMLInputElement = <HTMLInputElement>document.querySelector("[value='" + entry[1] + "']");
+            tool = item.value; //set selected item
+        }
+    }
+    function update(): void {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let index: number = 0; index < block.length; index++) {
+            block[index].draw();
+        }
+        //ctx.stroke(block[0].path);
+    }
+    function pathclicklisterner(_event: MouseEvent): void {
+        for (let index: number = 0; index < block.length; index++) {
+            if (ctx.isPointInPath(block[index].path, mousepositon.x, mousepositon.y)) {
+                block[index].doClick(tool);
+            }
+        }
 
-        console.log(mousepositon.x, mousepositon.y)
+    }
+
+    function setmouseposition(_event: MouseEvent): void {
+        let WTF: number[] = [41, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40];
+
+        mousepositon.x = (_event.clientX - rect.left) * scaleX;         //deklariere die X position mit der eventfunktion der Maus
+        mousepositon.y = (_event.clientY - rect.top) * scaleY;         //deklariere die y position mit der eventfunktion der Maus
+
+        for (let index: number = 0; index < block.length; index++) {        //Feld makierung anzeigen  <-- bekomme gleich einen Kotzanfall wenn die scheise jetzt dann nicht funktioniert gut habs dirty gelöst
+
+            if (ctx.isPointInPath(block[index].path, _event.clientX, _event.clientY)) {
+                block[WTF[index]].setHover();
+            }
+            else {
+                block[WTF[index]].clearHover();
+            }
+        }
+        //console.log(mousepositon.x, mousepositon.y);
 
     }
 }
