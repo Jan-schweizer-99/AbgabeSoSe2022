@@ -8,6 +8,7 @@ namespace Gemuesegarten {
     let scaleY: number;
 
     let tool: string = "fertilizer";
+    let selectedblock: number = 0;
 
     let block: Block[] = [];
 
@@ -74,7 +75,12 @@ namespace Gemuesegarten {
     function update(): void {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         for (let index: number = 0; index < block.length; index++) {
-            block[index].draw();
+            let position: HTMLElement = <HTMLElement>document.querySelector("span");  //deklariere das span
+            position.innerHTML = block[selectedblock].waterlevel[1].toString(); //Textausgabe des span
+            if (block[index].waterlevel[1] <= -300) {                           //Zerstörung durch unter oder überwässerung
+                block[index] = new Block (block[index].position, block[index].blocknumber);
+            }
+            block[index].update();
         }
         //ctx.stroke(block[0].path);
     }
@@ -89,14 +95,22 @@ namespace Gemuesegarten {
 
     function setmouseposition(_event: MouseEvent): void {
         let WTF: number[] = [41, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40];
-
+        let position: HTMLElement = <HTMLElement>document.querySelector("span");  //deklariere das span
         mousepositon.x = (_event.clientX - rect.left) * scaleX;         //deklariere die X position mit der eventfunktion der Maus
         mousepositon.y = (_event.clientY - rect.top) * scaleY;         //deklariere die y position mit der eventfunktion der Maus
 
         for (let index: number = 0; index < block.length; index++) {        //Feld makierung anzeigen  <-- bekomme gleich einen Kotzanfall wenn die scheise jetzt dann nicht funktioniert gut habs dirty gelöst
 
             if (ctx.isPointInPath(block[index].path, _event.clientX, _event.clientY)) {
-                block[WTF[index]].setHover();
+
+                
+
+                position.style.left = (_event.clientX + 30) + "px";  //aendere die Position des span (x) neben der Maus
+                position.style.top = (_event.clientY) + "px";  //aendere die position des span (y) neben der Maus
+                //position.innerHTML = block[index].waterlevel[1].toString(); //Textausgabe des span
+                selectedblock = block[index].blocknumber;
+                block[WTF[index]].setHover();   //zeige Hover Position auf Feldern an
+                
             }
             else {
                 block[WTF[index]].clearHover();

@@ -54,3 +54,10 @@ p {
     padding-right: 50px;
     padding-top: 50px;
   }
+  span {
+    float: none;
+    position: fixed;
+    background-color: rgba(255, 0, 0, 0.5);
+    width: 280px;
+    z-index: 1;
+}

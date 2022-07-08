@@ -6,6 +6,7 @@ var Gemuesegarten;
     let scaleX;
     let scaleY;
     let tool = "fertilizer";
+    let selectedblock = 0;
     let block = [];
     //paths
     //let circle: Path2D;
@@ -45,7 +46,12 @@ var Gemuesegarten;
     function update() {
         Gemuesegarten.ctx.clearRect(0, 0, canvas.width, canvas.height);
         for (let index = 0; index < block.length; index++) {
-            block[index].draw();
+            let position = document.querySelector("span"); //deklariere das span
+            position.innerHTML = block[selectedblock].waterlevel[1].toString(); //Textausgabe des span
+            if (block[index].waterlevel[1] <= -300) {
+                block[index] = new Gemuesegarten.Block(block[index].position, block[index].blocknumber);
+            }
+            block[index].update();
         }
         //ctx.stroke(block[0].path);
     }
@@ -58,11 +64,16 @@ var Gemuesegarten;
     }
     function setmouseposition(_event) {
         let WTF = [41, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40];
+        let position = document.querySelector("span"); //deklariere das span
         Gemuesegarten.mousepositon.x = (_event.clientX - rect.left) * scaleX; //deklariere die X position mit der eventfunktion der Maus
         Gemuesegarten.mousepositon.y = (_event.clientY - rect.top) * scaleY; //deklariere die y position mit der eventfunktion der Maus
         for (let index = 0; index < block.length; index++) { //Feld makierung anzeigen  <-- bekomme gleich einen Kotzanfall wenn die scheise jetzt dann nicht funktioniert gut habs dirty gelöst
             if (Gemuesegarten.ctx.isPointInPath(block[index].path, _event.clientX, _event.clientY)) {
-                block[WTF[index]].setHover();
+                position.style.left = (_event.clientX + 30) + "px"; //aendere die Position des span (x) neben der Maus
+                position.style.top = (_event.clientY) + "px"; //aendere die position des span (y) neben der Maus
+                //position.innerHTML = block[index].waterlevel[1].toString(); //Textausgabe des span
+                selectedblock = block[index].blocknumber;
+                block[WTF[index]].setHover(); //zeige Hover Position auf Feldern an
             }
             else {
                 block[WTF[index]].clearHover();
@@ -86,7 +97,11 @@ var Gemuesegarten;
         path = new Path2D();
         hover = false;
         blocknumber;
+        waterlevel = [0, 1, 0]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
+        pestlevel;
+        fertilizerlevel;
         position;
+        plant;
         status;
         constructor(_position, _blocknumber) {
             this.status = STATUS.DEFAULT;
@@ -111,10 +126,37 @@ var Gemuesegarten;
                 case STATUS.FERTILIZED:
                     if (tool == "water") {
                         this.imgBlock.src = "img/Ackerboden_2.webp";
+                        this.status = STATUS.WATERED;
                     }
                     else {
-                        console.log("erst Wässern");
+                        console.log("erst Wässern dann kann gepflanzt werden");
                     }
+                    break;
+                case STATUS.WATERED:
+                    if (tool == "pumpkinseed") {
+                        this.plant = new Gemuesegarten.Plant("pumpkinseed", this.position);
+                        this.status = STATUS.GROW;
+                    }
+                    if (tool == "carrotseed") {
+                        this.plant = new Gemuesegarten.Plant("carrotseed", this.position);
+                        this.status = STATUS.GROW;
+                    }
+                    if (tool == "potatoseed") {
+                        this.plant = new Gemuesegarten.Plant("potatoseed", this.position);
+                        this.status = STATUS.GROW;
+                    }
+                    if (tool == "beetrootseed") {
+                        this.plant = new Gemuesegarten.Plant("beetrootseed", this.position);
+                        this.status = STATUS.GROW;
+                    }
+                    if (tool == "wheatseed") {
+                        this.plant = new Gemuesegarten.Plant("wheatseed", this.position);
+                        this.status = STATUS.GROW;
+                    }
+                    else {
+                        console.log("erst Wässern dann kann ");
+                    }
+                    break;
             }
         }
         getpath() {
@@ -133,7 +175,7 @@ var Gemuesegarten;
             }
     
         }*/
-        draw() {
+        update() {
             Gemuesegarten.ctx.drawImage(this.imgBlock, this.position.x, this.position.y);
             if (this.hover == true) {
                 Gemuesegarten.ctx.fill(this.path);
@@ -144,6 +186,12 @@ var Gemuesegarten;
                 Gemuesegarten.ctx.fill(this.path);
                 Gemuesegarten.ctx.fillStyle = "#ff000000";
                 this.drawPath();
+            }
+            switch (this.status) {
+                case STATUS.GROW:
+                    this.waterlevel[1]--;
+                    this.plant.draw();
+                    this.plant.update();
             }
         }
         drawPath() {
@@ -158,6 +206,75 @@ var Gemuesegarten;
         }
     }
     Gemuesegarten.Block = Block;
+})(Gemuesegarten || (Gemuesegarten = {}));
+var Gemuesegarten;
+(function (Gemuesegarten) {
+    class Plant {
+        imgPlant = new Image();
+        blocknumber;
+        position = new Gemuesegarten.Vector(0, 0);
+        seed;
+        growtimecounter;
+        growtime; //time to grow
+        maxgrowlvl;
+        growlvl = 0;
+        path = [];
+        constructor(_seed, _position) {
+            this.position.x = _position.x;
+            this.position.y = _position.y - 155; //verschiebung in Y richtung
+            this.seed = _seed;
+            this.growlvl = 0;
+            if (this.seed == "carrotseed") {
+                this.growtime = 100;
+                this.maxgrowlvl = 3;
+                this.path[0] = "img/Carrot/Carrot_Age_";
+            }
+            if (this.seed == "beetrootseed") {
+                this.growtime = 100;
+                this.maxgrowlvl = 3;
+                this.path[0] = "img/Beetroot/Beetroot_Age_";
+            }
+            if (this.seed == "potatoseed") {
+                this.growtime = 100;
+                this.maxgrowlvl = 3;
+                this.path[0] = "img/Potato/Potato_Age_";
+            }
+            if (this.seed == "pumpkinseed") {
+                this.growtime = 100;
+                this.maxgrowlvl = 8;
+                this.path[0] = "img/Pumpkin/Pumpkin_Stem_Age_";
+            }
+            if (this.seed == "wheatseed") {
+                this.growtime = 100;
+                this.maxgrowlvl = 6;
+                this.path[0] = "img/Wheat/Wheat_Age_";
+            }
+            this.path[1] = ".webp";
+            this.growlvl = 0;
+            this.growtimecounter = 0;
+            //setInterval(this.update, this.growtime);
+        }
+        draw() {
+            this.imgPlant.src = this.path[0] + this.growlvl + this.path[1];
+            Gemuesegarten.ctx.drawImage(this.imgPlant, this.position.x, this.position.y);
+            //console.log(this.growlvl);
+        }
+        update() {
+            this.growtimecounter++;
+            if (this.growtimecounter >= this.growtime) {
+                if (this.growlvl < this.maxgrowlvl) {
+                    this.growlvl++;
+                }
+                this.growtimecounter = 0;
+            }
+            console.log(this.growtimecounter);
+            //console.log(this.maxgrowlvl);
+            //}
+            //else {
+            //console.log("plant is ready sir");
+        }
+    }
+    Gemuesegarten.Plant = Plant;
 })(Gemuesegarten || (Gemuesegarten = {}));
 var Gemuesegarten;
 (function (Gemuesegarten) {

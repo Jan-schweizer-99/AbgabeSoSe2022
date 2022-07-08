@@ -15,8 +15,12 @@ namespace Gemuesegarten {
         public hover: boolean = false;
 
         public blocknumber: number;
+        waterlevel: number[] = [0, 1, 0]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
+        pestlevel: number;
+        fertilizerlevel: number;
 
         position: Vector;
+        plant: Plant;
 
         private status: STATUS;
 
@@ -46,11 +50,37 @@ namespace Gemuesegarten {
                 case STATUS.FERTILIZED:
                     if (tool == "water") {
                         this.imgBlock.src = "img/Ackerboden_2.webp";
+                        this.status = STATUS.WATERED;
                     }
                     else {
-                        console.log("erst Wässern");
+                        console.log("erst Wässern dann kann gepflanzt werden");
                     }
-
+                    break;
+                case STATUS.WATERED:
+                    if (tool == "pumpkinseed") {
+                        this.plant = new Plant("pumpkinseed", this.position);
+                        this.status = STATUS.GROW;
+                    }
+                    if (tool == "carrotseed") {
+                        this.plant = new Plant("carrotseed", this.position);
+                        this.status = STATUS.GROW;
+                    }
+                    if (tool == "potatoseed") {
+                        this.plant = new Plant("potatoseed", this.position);
+                        this.status = STATUS.GROW;
+                    }
+                    if (tool == "beetrootseed") {
+                        this.plant = new Plant("beetrootseed", this.position);
+                        this.status = STATUS.GROW;
+                    }
+                    if (tool == "wheatseed") {
+                        this.plant = new Plant("wheatseed", this.position);
+                        this.status = STATUS.GROW;
+                    }
+                    else {
+                        console.log("erst Wässern dann kann ");
+                    }
+                    break;
             }
 
 
@@ -74,7 +104,7 @@ namespace Gemuesegarten {
             }
     
         }*/
-        draw(): void {
+        update(): void {
             ctx.drawImage(this.imgBlock, this.position.x, this.position.y);
             if (this.hover == true) {
                 ctx.fill(this.path);
@@ -87,6 +117,14 @@ namespace Gemuesegarten {
                 ctx.fillStyle = "#ff000000";
                 this.drawPath();
             }
+
+            switch (this.status) {
+                case STATUS.GROW:
+                    this.waterlevel[1] --;
+                    this.plant.draw();
+                    this.plant.update();
+            }
+
         }
         drawPath(): void {
             //ctx.drawImage(this.imgBlock, 0, 0);
