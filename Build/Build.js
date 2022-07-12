@@ -341,7 +341,6 @@ var Gemuesegarten;
             }
             if (this.growlvl == this.maxgrowlvl) {
                 this.grown = true;
-                Gemuesegarten.ctx.drawImage(this.imgPlant, this.position.x, this.position.y);
                 console.log("test");
             }
             console.log(this.growtimecounter);
