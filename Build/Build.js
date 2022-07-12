@@ -8,6 +8,7 @@ var Gemuesegarten;
     let tool = "fertilizer";
     let selectedblock = 0;
     let block = [];
+    let bee;
     //paths
     //let circle: Path2D;
     function hndLoad(_event) {
@@ -15,6 +16,7 @@ var Gemuesegarten;
         let startpositon = new Gemuesegarten.Vector(820, 170);
         let positon = new Gemuesegarten.Vector(134, 67);
         let positondown = new Gemuesegarten.Vector(-134, 67);
+        bee = new Gemuesegarten.Mob(new Gemuesegarten.Vector(0, 0));
         for (let i = 0; i < 6; i++) {
             for (let i = 0; i < 7; i++) {
                 block[index] = new Gemuesegarten.Block(new Gemuesegarten.Vector(startpositon.x + i * positon.x, startpositon.y + i * positon.y), index);
@@ -35,6 +37,7 @@ var Gemuesegarten;
         canvas.addEventListener("mousemove", setmouseposition); //oeffne bei der Mausbewegung irgendwo im auf der Seite die handlemousemove funktion
         //drawWorker();
         setInterval(update, 50);
+        //ctx.requestAnimationFrame(update);
     }
     function handleChange(_event) {
         let formData = new FormData(document.forms[0]);
@@ -48,11 +51,13 @@ var Gemuesegarten;
         for (let index = 0; index < block.length; index++) {
             let position = document.querySelector("span"); //deklariere das span
             position.innerHTML = block[selectedblock].waterlevel[1].toString(); //Textausgabe des span
-            if (block[index].waterlevel[1] <= -300) {
+            if (block[index].kill == true) { //Zerstörung durch unter oder überwässerung
                 block[index] = new Gemuesegarten.Block(block[index].position, block[index].blocknumber);
             }
             block[index].update();
         }
+        bee.update();
+        //console.log("test");
         //ctx.stroke(block[0].path);
     }
     function pathclicklisterner(_event) {
@@ -97,11 +102,12 @@ var Gemuesegarten;
         path = new Path2D();
         hover = false;
         blocknumber;
-        waterlevel = [0, 1, 0]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
+        waterlevel = [-200, 0, 200]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
         pestlevel;
         fertilizerlevel;
         position;
         plant;
+        kill;
         status;
         constructor(_position, _blocknumber) {
             this.status = STATUS.DEFAULT;
@@ -126,6 +132,7 @@ var Gemuesegarten;
                 case STATUS.FERTILIZED:
                     if (tool == "water") {
                         this.imgBlock.src = "img/Ackerboden_2.webp";
+                        this.waterlevel[1] = 200;
                         this.status = STATUS.WATERED;
                     }
                     else {
@@ -157,6 +164,13 @@ var Gemuesegarten;
                         console.log("erst Wässern dann kann ");
                     }
                     break;
+                case STATUS.GROW:
+                    if (tool == "water") {
+                        this.waterlevel[1] += 50;
+                        /*if (this.waterlevel[2] >= this.waterlevel[1]) {
+                            this.kill = true;
+                        }*/
+                    }
             }
         }
         getpath() {
@@ -192,6 +206,26 @@ var Gemuesegarten;
                     this.waterlevel[1]--;
                     this.plant.draw();
                     this.plant.update();
+                    if (this.waterlevel[1] < this.waterlevel[0]) {
+                        this.kill = true;
+                    }
+                    if (this.waterlevel[1] > this.waterlevel[2]) {
+                        this.kill = true;
+                    }
+                    if (this.waterlevel[1] <= 0) {
+                        this.imgBlock.src = "img/Ackerboden_1.webp";
+                    }
+                    if (this.waterlevel[1] >= 0) {
+                        this.imgBlock.src = "img/Ackerboden_2.webp";
+                    }
+                    if (this.plant.grown == true) {
+                        this.status = STATUS.READY;
+                    }
+                    break;
+                case STATUS.READY:
+                    console.log("Plant is Ready");
+                    this.plant.draw();
+                    break;
             }
         }
         drawPath() {
@@ -209,6 +243,43 @@ var Gemuesegarten;
 })(Gemuesegarten || (Gemuesegarten = {}));
 var Gemuesegarten;
 (function (Gemuesegarten) {
+    class Mob {
+        frame;
+        position;
+        imgMob = new Image();
+        mobpath = [];
+        flightdirection;
+        constructor(_position) {
+            this.frame = 0;
+            this.position = _position;
+            //canvas.addEventListener("click", this.pathclicklisterner);
+            this.mobpath[0] = "img/bee/Bee_types_BE_";
+            this.mobpath[1] = ".png";
+        }
+        update() {
+            this.frame++;
+            this.imgMob.src = this.mobpath[0] + this.frame + this.mobpath[1];
+            Gemuesegarten.ctx.save();
+            Gemuesegarten.ctx.scale(-1, 1);
+            Gemuesegarten.ctx.drawImage(this.imgMob, this.position.x - 40, this.position.y - 40);
+            Gemuesegarten.ctx.restore();
+            this.position.x -= 4;
+            if (this.position.x <= -1940) {
+                this.position.x = 40;
+            }
+            this.position.y += 4;
+            if (this.position.y >= 1120) {
+                this.position.y = -40;
+            }
+            if (this.frame == 8) {
+                this.frame = 0;
+            }
+        }
+    }
+    Gemuesegarten.Mob = Mob;
+})(Gemuesegarten || (Gemuesegarten = {}));
+var Gemuesegarten;
+(function (Gemuesegarten) {
     class Plant {
         imgPlant = new Image();
         blocknumber;
@@ -216,6 +287,7 @@ var Gemuesegarten;
         seed;
         growtimecounter;
         growtime; //time to grow
+        grown = false;
         maxgrowlvl;
         growlvl = 0;
         path = [];
@@ -262,10 +334,15 @@ var Gemuesegarten;
         update() {
             this.growtimecounter++;
             if (this.growtimecounter >= this.growtime) {
-                if (this.growlvl < this.maxgrowlvl) {
+                if (this.growlvl <= this.maxgrowlvl) {
                     this.growlvl++;
                 }
                 this.growtimecounter = 0;
+            }
+            if (this.growlvl == this.maxgrowlvl) {
+                this.grown = true;
+                Gemuesegarten.ctx.drawImage(this.imgPlant, this.position.x, this.position.y);
+                console.log("test");
             }
             console.log(this.growtimecounter);
             //console.log(this.maxgrowlvl);

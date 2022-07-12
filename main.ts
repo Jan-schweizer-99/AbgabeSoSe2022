@@ -11,6 +11,7 @@ namespace Gemuesegarten {
     let selectedblock: number = 0;
 
     let block: Block[] = [];
+    let bee: Mob;
 
 
     //paths
@@ -28,6 +29,7 @@ namespace Gemuesegarten {
         let startpositon: Vector = new Vector(820, 170);
         let positon: Vector = new Vector(134, 67);
         let positondown: Vector = new Vector(-134, 67);
+        bee = new Mob(new Vector(0, 0));
         for (let i: number = 0; i < 6; i++) {
             for (let i: number = 0; i < 7; i++) {
 
@@ -62,7 +64,7 @@ namespace Gemuesegarten {
 
         //drawWorker();
         setInterval(update, 50);
-
+        //ctx.requestAnimationFrame(update);
     }
     function handleChange(_event: Event): void {
 
@@ -77,11 +79,13 @@ namespace Gemuesegarten {
         for (let index: number = 0; index < block.length; index++) {
             let position: HTMLElement = <HTMLElement>document.querySelector("span");  //deklariere das span
             position.innerHTML = block[selectedblock].waterlevel[1].toString(); //Textausgabe des span
-            if (block[index].waterlevel[1] <= -300) {                           //Zerstörung durch unter oder überwässerung
+            if (block[index].kill == true) {                           //Zerstörung durch unter oder überwässerung
                 block[index] = new Block (block[index].position, block[index].blocknumber);
             }
             block[index].update();
         }
+        bee.update();
+        //console.log("test");
         //ctx.stroke(block[0].path);
     }
     function pathclicklisterner(_event: MouseEvent): void {

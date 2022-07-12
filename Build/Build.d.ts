@@ -13,6 +13,7 @@ declare namespace Gemuesegarten {
         fertilizerlevel: number;
         position: Vector;
         plant: Plant;
+        kill: Boolean;
         private status;
         constructor(_position: Vector, _blocknumber: number);
         doClick(_tool: string): void;
@@ -24,6 +25,17 @@ declare namespace Gemuesegarten {
     }
 }
 declare namespace Gemuesegarten {
+    class Mob {
+        frame: number;
+        position: Vector;
+        imgMob: HTMLImageElement;
+        mobpath: string[];
+        private flightdirection;
+        constructor(_position: Vector);
+        update(): void;
+    }
+}
+declare namespace Gemuesegarten {
     class Plant {
         imgPlant: HTMLImageElement;
         blocknumber: number;
@@ -31,6 +43,7 @@ declare namespace Gemuesegarten {
         seed: string;
         growtimecounter: number;
         growtime: number;
+        grown: Boolean;
         maxgrowlvl: number;
         growlvl: number;
         private path;

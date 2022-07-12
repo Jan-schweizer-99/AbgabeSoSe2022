@@ -15,14 +15,17 @@ namespace Gemuesegarten {
         public hover: boolean = false;
 
         public blocknumber: number;
-        waterlevel: number[] = [0, 1, 0]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
+        waterlevel: number[] = [-200, 0, 200]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
         pestlevel: number;
         fertilizerlevel: number;
 
         position: Vector;
         plant: Plant;
 
+        public kill: Boolean;
+
         private status: STATUS;
+
 
 
 
@@ -50,6 +53,7 @@ namespace Gemuesegarten {
                 case STATUS.FERTILIZED:
                     if (tool == "water") {
                         this.imgBlock.src = "img/Ackerboden_2.webp";
+                        this.waterlevel[1] = 200;
                         this.status = STATUS.WATERED;
                     }
                     else {
@@ -81,6 +85,17 @@ namespace Gemuesegarten {
                         console.log("erst Wässern dann kann ");
                     }
                     break;
+                case STATUS.GROW:
+                    if (tool == "water") {
+                        this.waterlevel[1] += 50;
+
+
+                        /*if (this.waterlevel[2] >= this.waterlevel[1]) {
+                            this.kill = true;
+                        }*/
+                    }
+
+
             }
 
 
@@ -120,10 +135,35 @@ namespace Gemuesegarten {
 
             switch (this.status) {
                 case STATUS.GROW:
-                    this.waterlevel[1] --;
+                    this.waterlevel[1]--;
                     this.plant.draw();
                     this.plant.update();
+
+                    if (this.waterlevel[1] < this.waterlevel[0]) {
+                        this.kill = true;
+
+                    }
+                    if (this.waterlevel[1] > this.waterlevel[2]) {
+                        this.kill = true;
+
+                    }
+
+                    if (this.waterlevel[1] <= 0) {
+                        this.imgBlock.src = "img/Ackerboden_1.webp";
+                    }
+                    if (this.waterlevel[1] >= 0) {
+                        this.imgBlock.src = "img/Ackerboden_2.webp";
+                    }
+                    if (this.plant.grown == true) {
+                        this.status = STATUS.READY;
+                    }
+                    break;
+                    case STATUS.READY:
+                    console.log("Plant is Ready");
+                    this.plant.draw();
+                    break;
             }
+
 
         }
         drawPath(): void {
@@ -134,6 +174,8 @@ namespace Gemuesegarten {
             this.path.lineTo(284 + this.position.x, 67 + this.position.y);
             this.path.lineTo(150 + this.position.x, 2 * 67 + this.position.y);
             this.path.closePath();
+
+
 
             //ctx.stroke();
 

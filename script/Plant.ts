@@ -12,6 +12,8 @@ namespace Gemuesegarten {
         growtimecounter: number;
         growtime: number; //time to grow
 
+        grown: Boolean = false;
+
         maxgrowlvl: number;
         public growlvl: number = 0;
 
@@ -76,11 +78,17 @@ namespace Gemuesegarten {
 
             this.growtimecounter++;
             if (this.growtimecounter >= this.growtime) {
-                if (this.growlvl < this.maxgrowlvl) {
+                if (this.growlvl <= this.maxgrowlvl) {
+
                     this.growlvl++;
                 }
+
                 
                 this.growtimecounter = 0;
+            }
+            if (this.growlvl == this.maxgrowlvl) {
+                this.grown = true;
+                console.log("test");
             }
             console.log(this.growtimecounter);
             //console.log(this.maxgrowlvl);
