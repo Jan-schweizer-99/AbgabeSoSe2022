@@ -43,8 +43,8 @@ var Gemuesegarten;
         //requestAnimationFrame(update());
     }
     function handleChange(_event) {
-        let formData = new FormData(document.forms[0]);
-        for (let entry of formData) {
+        let formData = new FormData(document.forms[0]); //update Formdatas
+        for (let entry of formData) { //array of all Formdata
             let item = document.querySelector("[value='" + entry[1] + "']");
             tool = item.value; //set selected item
         }
@@ -466,6 +466,33 @@ var Gemuesegarten;
         }
     }
     Gemuesegarten.Plant = Plant;
+})(Gemuesegarten || (Gemuesegarten = {}));
+var Gemuesegarten;
+(function (Gemuesegarten) {
+    class Shop {
+        pricerange;
+        emaralamount;
+        item = [];
+        allitems = ["potato", "wheat", "carrot", "beetroot", "pumpkin", "fertilizer", "pesticide", "beetrootseed", "wheatseed", "pumpkinseed", "potatoseed", "carrotseed"];
+        buy = [false, false, false, false, false, false, true, true, true, true, true, true];
+        constructor(_pricerange, _emaralamount) {
+            this.pricerange = _pricerange;
+            this.emaralamount = _emaralamount;
+            for (let i = 0; i < this.allitems.length; i++) {
+                this.item[i].buy = this.buy[i];
+                this.item[i].itemname = this.allitems[i];
+                if (i <= 4) {
+                    this.item[i].price = this.randomprice();
+                }
+            }
+            update();
+            void {};
+        }
+        randomprice() {
+            return Math.floor(Math.random() * this.pricerange);
+        }
+    }
+    Gemuesegarten.Shop = Shop;
 })(Gemuesegarten || (Gemuesegarten = {}));
 var Gemuesegarten;
 (function (Gemuesegarten) {
