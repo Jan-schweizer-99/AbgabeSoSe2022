@@ -8,21 +8,24 @@ var Gemuesegarten;
     let tool = "fertilizer";
     let selectedblock = 0;
     let block = [];
-    let bee;
+    let bee = [];
+    let beenumber = 4;
     //paths
     //let circle: Path2D;
     function hndLoad(_event) {
-        let index = 0;
-        let startpositon = new Gemuesegarten.Vector(820, 170);
-        let positon = new Gemuesegarten.Vector(134, 67);
-        let positondown = new Gemuesegarten.Vector(-134, 67);
-        bee = new Gemuesegarten.Mob(new Gemuesegarten.Vector(0, 0));
+        let index = 0; // Index für Feld-Feld Generator
+        let startpositon = new Gemuesegarten.Vector(820, 170); // start Postion für Feld-Generator
+        let positon = new Gemuesegarten.Vector(134, 67); // verschiebung der blöcke
+        let positondown = new Gemuesegarten.Vector(-134, 67); // Position nach unten für Feld-Generator
         for (let i = 0; i < 6; i++) {
             for (let i = 0; i < 7; i++) {
                 block[index] = new Gemuesegarten.Block(new Gemuesegarten.Vector(startpositon.x + i * positon.x, startpositon.y + i * positon.y), index);
                 index++;
             }
-            startpositon.add(positondown);
+            startpositon.add(positondown); //Addiere Startposition in die zweite Reihe
+        }
+        for (let i = 0; i < beenumber; i++) { // Instanzierung der Bienen
+            bee[i] = new Gemuesegarten.Mob(new Gemuesegarten.Vector(Math.random() * (1920 - 0) + 0, Math.random() * (1080 - 0) + 0), "world");
         }
         Gemuesegarten.mousepositon = new Gemuesegarten.Vector(0, 0);
         let canvas = document.querySelector("#canvas");
@@ -36,8 +39,8 @@ var Gemuesegarten;
         //canvas.addEventListener("mousemove", pathmouseoverlisterner); //path listener für auswahl
         canvas.addEventListener("mousemove", setmouseposition); //oeffne bei der Mausbewegung irgendwo im auf der Seite die handlemousemove funktion
         //drawWorker();
-        setInterval(update, 50);
-        //ctx.requestAnimationFrame(update);
+        setInterval(update, 40);
+        //requestAnimationFrame(update());
     }
     function handleChange(_event) {
         let formData = new FormData(document.forms[0]);
@@ -50,20 +53,30 @@ var Gemuesegarten;
         Gemuesegarten.ctx.clearRect(0, 0, canvas.width, canvas.height);
         for (let index = 0; index < block.length; index++) {
             let position = document.querySelector("span"); //deklariere das span
-            position.innerHTML = block[selectedblock].waterlevel[1].toString(); //Textausgabe des span
-            if (block[index].kill == true) { //Zerstörung durch unter oder überwässerung
-                block[index] = new Gemuesegarten.Block(block[index].position, block[index].blocknumber);
+            position.innerHTML = block[selectedblock].blockinfo; //Textausgabe des span
+            if (block[index].kill == true) { //Zerstörung des Blockes -> weitere in Block.ts
+                block[index] = new Gemuesegarten.Block(block[index].position, block[index].blocknumber); //ersetze zerstörten block 
             }
             block[index].update();
         }
-        bee.update();
-        //console.log("test");
-        //ctx.stroke(block[0].path);
+        for (let i = 0; i < beenumber; i++) { //update alle Weltbienen
+            bee[i].update(); //..
+            for (let index = 0; index < block.length; index++) { //frage alle blöcke ab.
+                if (Gemuesegarten.ctx.isPointInPath(block[index].path, bee[i].position.x, bee[i].position.y)) { //Wenn die "Welt" Biene ist im Pfad des blockes
+                    if ((block[index].status == Gemuesegarten.STATUS.GROW) || (block[index].status == Gemuesegarten.STATUS.READY)) { //Der Blockzustand im Wachstum oder Fertig und
+                        if (block[index].mobspawner == false) { //fals der Mobspawner aus ist
+                            block[index].mobspawner = true; //schalte den Mobspawner des Blockes an
+                            bee[i] = new Gemuesegarten.Mob(new Gemuesegarten.Vector(Math.random() * (1920 - 0) + 0, Math.random() * (1080 - 0) + 0), "world"); //und setze die gleiche "Welt" Biene wieder an zurück an eine Random Position 
+                        }
+                    }
+                }
+            }
+        }
     }
     function pathclicklisterner(_event) {
-        for (let index = 0; index < block.length; index++) {
-            if (Gemuesegarten.ctx.isPointInPath(block[index].path, Gemuesegarten.mousepositon.x, Gemuesegarten.mousepositon.y)) {
-                block[index].doClick(tool);
+        for (let index = 0; index < block.length; index++) { //instanzierung
+            if (Gemuesegarten.ctx.isPointInPath(block[index].path, Gemuesegarten.mousepositon.x, Gemuesegarten.mousepositon.y)) { //wenn innerhalb eines Pfades gedrückt wurde
+                block[index].doClick(tool); //dann Führe eine Aktion mit jeweiligem ausgewähltem Werkzeug durch
             }
         }
     }
@@ -73,11 +86,10 @@ var Gemuesegarten;
         Gemuesegarten.mousepositon.x = (_event.clientX - rect.left) * scaleX; //deklariere die X position mit der eventfunktion der Maus
         Gemuesegarten.mousepositon.y = (_event.clientY - rect.top) * scaleY; //deklariere die y position mit der eventfunktion der Maus
         for (let index = 0; index < block.length; index++) { //Feld makierung anzeigen  <-- bekomme gleich einen Kotzanfall wenn die scheise jetzt dann nicht funktioniert gut habs dirty gelöst
-            if (Gemuesegarten.ctx.isPointInPath(block[index].path, _event.clientX, _event.clientY)) {
+            if (Gemuesegarten.ctx.isPointInPath(block[index].path, _event.clientX, _event.clientY)) { //wenn Mausposition auf dementsprechenden Feld ist
                 position.style.left = (_event.clientX + 30) + "px"; //aendere die Position des span (x) neben der Maus
                 position.style.top = (_event.clientY) + "px"; //aendere die position des span (y) neben der Maus
-                //position.innerHTML = block[index].waterlevel[1].toString(); //Textausgabe des span
-                selectedblock = block[index].blocknumber;
+                selectedblock = block[index].blocknumber; //update ausgewählten block
                 block[WTF[index]].setHover(); //zeige Hover Position auf Feldern an
             }
             else {
@@ -96,20 +108,25 @@ var Gemuesegarten;
         STATUS[STATUS["WATERED"] = 2] = "WATERED";
         STATUS[STATUS["GROW"] = 3] = "GROW";
         STATUS[STATUS["READY"] = 4] = "READY";
-    })(STATUS || (STATUS = {}));
+    })(STATUS = Gemuesegarten.STATUS || (Gemuesegarten.STATUS = {}));
     class Block {
+        blockinfo;
         imgBlock = new Image();
         path = new Path2D();
         hover = false;
         blocknumber;
-        waterlevel = [-200, 0, 200]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
+        waterlevel = [-20000, 0, 200]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
+        fertilizerlevel = [-20000, 0, 200]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
         pestlevel;
-        fertilizerlevel;
         position;
         plant;
+        mobspawn;
+        mobspawntime = 250;
+        mobspawner = false;
         kill;
         status;
         constructor(_position, _blocknumber) {
+            this.mobspawn = this.mobspawntime;
             this.status = STATUS.DEFAULT;
             this.blocknumber = _blocknumber;
             this.position = _position;
@@ -117,12 +134,25 @@ var Gemuesegarten;
             this.imgBlock.src = "img/Grasblock.webp";
             this.drawPath();
         }
+        newBee() {
+            this.plant.bee.push(new Gemuesegarten.Mob(new Gemuesegarten.Vector(this.position.x, this.position.y), "block"));
+            //this.mobspawner = true;
+            console.log("test");
+        }
+        killBee() {
+            this.plant.bee.pop(); // letztes mob aus pflanze löschen
+            if (this.plant.bee.length == 0) {
+                this.mobspawner = false; //ausschalten der mobspawner Block
+                this.mobspawn = this.mobspawntime; //Reset der Spawnzeit für neue Biene
+            }
+        }
         doClick(_tool) {
             let tool = _tool;
             switch (this.status) {
                 case STATUS.DEFAULT:
                     if (tool == "fertilizer") {
                         this.imgBlock.src = "img/Ackerboden_1.webp";
+                        this.waterlevel[1] = 200;
                         this.status = STATUS.FERTILIZED;
                     }
                     else {
@@ -167,10 +197,19 @@ var Gemuesegarten;
                 case STATUS.GROW:
                     if (tool == "water") {
                         this.waterlevel[1] += 50;
-                        /*if (this.waterlevel[2] >= this.waterlevel[1]) {
-                            this.kill = true;
-                        }*/
                     }
+                    if (tool == "fertilizer") {
+                        this.fertilizerlevel[1] += 50;
+                    }
+                    if (tool == "pesticide") {
+                        this.killBee();
+                    }
+                    break;
+                case STATUS.READY:
+                    if (tool == "pesticide") {
+                        this.killBee();
+                    }
+                    break;
             }
         }
         getpath() {
@@ -190,42 +229,67 @@ var Gemuesegarten;
     
         }*/
         update() {
+            this.blockinfo = "water: " + this.waterlevel[1].toString() + " min: " + this.waterlevel[0].toString() + " max: " + this.waterlevel[2].toString() + "<br> fertilizer: " + this.fertilizerlevel[1].toString() + " min: " + this.fertilizerlevel[0].toString() + " max: " + this.fertilizerlevel[2].toString();
             Gemuesegarten.ctx.drawImage(this.imgBlock, this.position.x, this.position.y);
             if (this.hover == true) {
                 Gemuesegarten.ctx.fill(this.path);
                 Gemuesegarten.ctx.fillStyle = "#ff000050";
-                this.drawPath();
+                //this.drawPath();
             }
             if (this.hover == false) {
                 Gemuesegarten.ctx.fill(this.path);
                 Gemuesegarten.ctx.fillStyle = "#ff000000";
-                this.drawPath();
+                //this.drawPath();
             }
             switch (this.status) {
                 case STATUS.GROW:
                     this.waterlevel[1]--;
+                    this.fertilizerlevel[1]--;
                     this.plant.draw();
                     this.plant.update();
+                    //water events
                     if (this.waterlevel[1] < this.waterlevel[0]) {
                         this.kill = true;
                     }
                     if (this.waterlevel[1] > this.waterlevel[2]) {
                         this.kill = true;
                     }
-                    if (this.waterlevel[1] <= 0) {
+                    if (this.waterlevel[1] <= 0) { //change image for image
                         this.imgBlock.src = "img/Ackerboden_1.webp";
                     }
                     if (this.waterlevel[1] >= 0) {
                         this.imgBlock.src = "img/Ackerboden_2.webp";
                     }
+                    //fertilizer events
+                    if (this.fertilizerlevel[1] < this.waterlevel[0]) {
+                        this.kill = true;
+                    }
+                    if (this.fertilizerlevel[1] > this.waterlevel[2]) {
+                        this.kill = true;
+                    }
+                    //mob events
+                    this.updatePests();
                     if (this.plant.grown == true) {
                         this.status = STATUS.READY;
                     }
                     break;
                 case STATUS.READY:
+                    this.updatePests();
                     console.log("Plant is Ready");
                     this.plant.draw();
                     break;
+            }
+        }
+        updatePests() {
+            if (this.plant.bee.length > 2) {
+                this.kill = true;
+            }
+            if (this.mobspawner == true) {
+                this.mobspawn++;
+                if (this.mobspawn >= this.mobspawntime) {
+                    this.mobspawn = 0;
+                    this.newBee();
+                }
             }
         }
         drawPath() {
@@ -243,36 +307,82 @@ var Gemuesegarten;
 })(Gemuesegarten || (Gemuesegarten = {}));
 var Gemuesegarten;
 (function (Gemuesegarten) {
+    let DIRECTION;
+    (function (DIRECTION) {
+        DIRECTION[DIRECTION["LEFT"] = 0] = "LEFT";
+        DIRECTION[DIRECTION["RIGHT"] = 1] = "RIGHT";
+        DIRECTION[DIRECTION["UP"] = 2] = "UP";
+        DIRECTION[DIRECTION["DOWN"] = 3] = "DOWN";
+    })(DIRECTION || (DIRECTION = {}));
     class Mob {
+        direction;
         frame;
+        framedelay = 0;
         position;
-        imgMob = new Image();
+        minpostion;
+        maxpostion;
+        imgMob = [];
         mobpath = [];
-        flightdirection;
-        constructor(_position) {
+        mode;
+        constructor(_position, _mode) {
+            this.mode = _mode;
+            console.log(this.mode);
             this.frame = 0;
             this.position = _position;
+            this.position.y -= 40;
             //canvas.addEventListener("click", this.pathclicklisterner);
-            this.mobpath[0] = "img/bee/Bee_types_BE_";
+            if (this.mode == "world") {
+                this.mobpath[0] = "img/bee/world/Bee_types_BE_";
+                this.minpostion = new Gemuesegarten.Vector(-40, -40);
+                this.maxpostion = new Gemuesegarten.Vector(1940, 1120);
+            }
+            if (this.mode == "block") {
+                this.mobpath[0] = "img/bee/block/Bee_types_BE_";
+                this.minpostion = new Gemuesegarten.Vector(_position.x + 50, _position.y);
+                this.maxpostion = new Gemuesegarten.Vector(_position.x + 300 - 50, _position.y + 300);
+                this.direction = DIRECTION.RIGHT;
+            }
             this.mobpath[1] = ".png";
+            for (let i = 0; i <= 8; i++) {
+                this.imgMob[i] = new Image();
+                this.imgMob[i].src = this.mobpath[0] + i + this.mobpath[1];
+            }
         }
         update() {
+            console.log(this.frame);
             this.frame++;
-            this.imgMob.src = this.mobpath[0] + this.frame + this.mobpath[1];
-            Gemuesegarten.ctx.save();
-            Gemuesegarten.ctx.scale(-1, 1);
-            Gemuesegarten.ctx.drawImage(this.imgMob, this.position.x - 40, this.position.y - 40);
-            Gemuesegarten.ctx.restore();
-            this.position.x -= 4;
-            if (this.position.x <= -1940) {
-                this.position.x = 40;
-            }
-            this.position.y += 4;
-            if (this.position.y >= 1120) {
-                this.position.y = -40;
-            }
+            //this.imgMob.src = this.mobpath[0] + this.frame + this.mobpath[1];
+            Gemuesegarten.ctx.drawImage(this.imgMob[this.frame], this.position.x - 40, this.position.y - 40);
             if (this.frame == 8) {
                 this.frame = 0;
+            }
+            if (this.mode == "world") {
+                this.position.x += 4;
+                this.position.y += 4;
+                if (this.position.y >= this.maxpostion.y) {
+                    this.position.y = this.minpostion.y;
+                }
+                if (this.position.x >= this.maxpostion.x) {
+                    this.position.x = this.minpostion.x;
+                }
+            }
+            if (this.mode == "block") {
+                if (this.direction == DIRECTION.RIGHT) {
+                    if (this.position.x >= this.maxpostion.x) {
+                        this.direction = DIRECTION.LEFT;
+                    }
+                    else {
+                        this.position.x += 4;
+                    }
+                }
+                if (this.direction == DIRECTION.LEFT) {
+                    if (this.position.x <= this.minpostion.x) {
+                        this.direction = DIRECTION.RIGHT;
+                    }
+                    else {
+                        this.position.x -= 4;
+                    }
+                }
             }
         }
     }
@@ -290,6 +400,7 @@ var Gemuesegarten;
         grown = false;
         maxgrowlvl;
         growlvl = 0;
+        bee = [];
         path = [];
         constructor(_seed, _position) {
             this.position.x = _position.x;
@@ -329,6 +440,11 @@ var Gemuesegarten;
         draw() {
             this.imgPlant.src = this.path[0] + this.growlvl + this.path[1];
             Gemuesegarten.ctx.drawImage(this.imgPlant, this.position.x, this.position.y);
+            if (this.bee.length > 0) {
+                for (let i = 0; i < this.bee.length; i++) {
+                    this.bee[i].update();
+                }
+            }
             //console.log(this.growlvl);
         }
         update() {
@@ -341,7 +457,6 @@ var Gemuesegarten;
             }
             if (this.growlvl == this.maxgrowlvl) {
                 this.grown = true;
-                console.log("test");
             }
             console.log(this.growtimecounter);
             //console.log(this.maxgrowlvl);

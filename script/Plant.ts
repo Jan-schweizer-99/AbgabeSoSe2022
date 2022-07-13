@@ -17,9 +17,12 @@ namespace Gemuesegarten {
         maxgrowlvl: number;
         public growlvl: number = 0;
 
+        public bee: Mob [] = [];
+
 
 
         private path: string[] = [];
+
 
 
 
@@ -70,6 +73,12 @@ namespace Gemuesegarten {
         draw(): void {
             this.imgPlant.src = this.path[0] + this.growlvl + this.path[1];
             ctx.drawImage(this.imgPlant, this.position.x, this.position.y);
+            if (this.bee.length > 0) {
+                for (let i: number = 0; i < this.bee.length; i++) {
+                    this.bee[i].update();
+                }
+
+            }
             //console.log(this.growlvl);
 
         }
@@ -79,16 +88,13 @@ namespace Gemuesegarten {
             this.growtimecounter++;
             if (this.growtimecounter >= this.growtime) {
                 if (this.growlvl <= this.maxgrowlvl) {
-
                     this.growlvl++;
                 }
 
-                
                 this.growtimecounter = 0;
             }
             if (this.growlvl == this.maxgrowlvl) {
                 this.grown = true;
-                console.log("test");
             }
             console.log(this.growtimecounter);
             //console.log(this.maxgrowlvl);

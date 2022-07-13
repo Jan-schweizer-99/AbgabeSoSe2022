@@ -1,5 +1,5 @@
 namespace Gemuesegarten {
-    enum STATUS {
+    export enum STATUS {
         DEFAULT,
         FERTILIZED,
         WATERED,
@@ -9,28 +9,33 @@ namespace Gemuesegarten {
     export class Block {
 
 
-
+        blockinfo: string;
         imgBlock: HTMLImageElement = new Image();
         public path: Path2D = new Path2D();
         public hover: boolean = false;
 
         public blocknumber: number;
-        waterlevel: number[] = [-200, 0, 200]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
+        waterlevel: number[] = [-20000, 0, 200]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
+        fertilizerlevel: number[] = [-20000, 0, 200]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
         pestlevel: number;
-        fertilizerlevel: number;
 
         position: Vector;
         plant: Plant;
 
+        mobspawn: number;
+        mobspawntime: number = 250;
+        mobspawner: boolean = false;
+
         public kill: Boolean;
 
-        private status: STATUS;
+        public status: STATUS;
 
 
 
 
         constructor(_position: Vector, _blocknumber: number) {
 
+            this.mobspawn = this.mobspawntime;
             this.status = STATUS.DEFAULT;
             this.blocknumber = _blocknumber;
             this.position = _position;
@@ -38,12 +43,25 @@ namespace Gemuesegarten {
             this.imgBlock.src = "img/Grasblock.webp";
             this.drawPath();
         }
+        newBee(): void {
+            this.plant.bee.push(new Mob(new Vector(this.position.x, this.position.y), "block"));
+            //this.mobspawner = true;
+            console.log("test");
+        }
+        killBee(): void {
+            this.plant.bee.pop();               // letztes mob aus pflanze löschen
+            if (this.plant.bee.length == 0) {
+                this.mobspawner = false;               //ausschalten der mobspawner Block
+                this.mobspawn = this.mobspawntime; //Reset der Spawnzeit für neue Biene
+            }
+        }
         public doClick(_tool: string): void {
             let tool: string = _tool;
             switch (this.status) {
                 case STATUS.DEFAULT:
                     if (tool == "fertilizer") {
                         this.imgBlock.src = "img/Ackerboden_1.webp";
+                        this.waterlevel[1] = 200;
                         this.status = STATUS.FERTILIZED;
                     }
                     else {
@@ -88,13 +106,19 @@ namespace Gemuesegarten {
                 case STATUS.GROW:
                     if (tool == "water") {
                         this.waterlevel[1] += 50;
-
-
-                        /*if (this.waterlevel[2] >= this.waterlevel[1]) {
-                            this.kill = true;
-                        }*/
                     }
-
+                    if (tool == "fertilizer") {
+                        this.fertilizerlevel[1] += 50;
+                    }
+                    if (tool == "pesticide") {
+                        this.killBee();
+                    }
+                    break;
+                case STATUS.READY:
+                    if (tool == "pesticide") {
+                        this.killBee();
+                    }
+                    break;
 
             }
 
@@ -120,24 +144,29 @@ namespace Gemuesegarten {
     
         }*/
         update(): void {
+            this.blockinfo = "water: " + this.waterlevel[1].toString() + " min: " + this.waterlevel[0].toString() + " max: " + this.waterlevel[2].toString() + "<br> fertilizer: " + this.fertilizerlevel[1].toString() + " min: " + this.fertilizerlevel[0].toString() + " max: " + this.fertilizerlevel[2].toString();
             ctx.drawImage(this.imgBlock, this.position.x, this.position.y);
             if (this.hover == true) {
                 ctx.fill(this.path);
                 ctx.fillStyle = "#ff000050";
-                this.drawPath();
+                //this.drawPath();
             }
             if (this.hover == false) {
 
                 ctx.fill(this.path);
                 ctx.fillStyle = "#ff000000";
-                this.drawPath();
+                //this.drawPath();
             }
 
             switch (this.status) {
                 case STATUS.GROW:
                     this.waterlevel[1]--;
+                    this.fertilizerlevel[1]--;
+
                     this.plant.draw();
                     this.plant.update();
+
+                    //water events
 
                     if (this.waterlevel[1] < this.waterlevel[0]) {
                         this.kill = true;
@@ -145,26 +174,55 @@ namespace Gemuesegarten {
                     }
                     if (this.waterlevel[1] > this.waterlevel[2]) {
                         this.kill = true;
-
                     }
 
-                    if (this.waterlevel[1] <= 0) {
+                    if (this.waterlevel[1] <= 0) {                      //change image for image
                         this.imgBlock.src = "img/Ackerboden_1.webp";
                     }
                     if (this.waterlevel[1] >= 0) {
                         this.imgBlock.src = "img/Ackerboden_2.webp";
                     }
+
+                    //fertilizer events
+
+                    if (this.fertilizerlevel[1] < this.waterlevel[0]) {
+                        this.kill = true;
+
+                    }
+                    if (this.fertilizerlevel[1] > this.waterlevel[2]) {
+                        this.kill = true;
+                    }
+
+                    //mob events
+
+
+                    this.updatePests();
                     if (this.plant.grown == true) {
                         this.status = STATUS.READY;
                     }
                     break;
-                    case STATUS.READY:
+                case STATUS.READY:
+                    this.updatePests();
                     console.log("Plant is Ready");
                     this.plant.draw();
                     break;
             }
 
 
+        }
+        updatePests(): void {
+
+            if (this.plant.bee.length > 2) {
+                this.kill = true;
+
+            }
+            if (this.mobspawner == true) {
+                this.mobspawn++;
+                if (this.mobspawn >= this.mobspawntime) {
+                    this.mobspawn = 0;
+                    this.newBee();
+                }
+            }
         }
         drawPath(): void {
             //ctx.drawImage(this.imgBlock, 0, 0);
@@ -174,8 +232,6 @@ namespace Gemuesegarten {
             this.path.lineTo(284 + this.position.x, 67 + this.position.y);
             this.path.lineTo(150 + this.position.x, 2 * 67 + this.position.y);
             this.path.closePath();
-
-
 
             //ctx.stroke();
 

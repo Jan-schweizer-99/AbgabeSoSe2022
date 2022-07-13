@@ -3,37 +3,62 @@ declare namespace Gemuesegarten {
     let mousepositon: Vector;
 }
 declare namespace Gemuesegarten {
+    enum STATUS {
+        DEFAULT = 0,
+        FERTILIZED = 1,
+        WATERED = 2,
+        GROW = 3,
+        READY = 4
+    }
     class Block {
+        blockinfo: string;
         imgBlock: HTMLImageElement;
         path: Path2D;
         hover: boolean;
         blocknumber: number;
         waterlevel: number[];
+        fertilizerlevel: number[];
         pestlevel: number;
-        fertilizerlevel: number;
         position: Vector;
         plant: Plant;
+        mobspawn: number;
+        mobspawntime: number;
+        mobspawner: boolean;
         kill: Boolean;
-        private status;
+        status: STATUS;
         constructor(_position: Vector, _blocknumber: number);
+        newBee(): void;
+        killBee(): void;
         doClick(_tool: string): void;
         getpath(): Path2D;
         setHover(): void;
         clearHover(): void;
         update(): void;
+        updatePests(): void;
         drawPath(): void;
     }
 }
 declare namespace Gemuesegarten {
-    class Mob {
+    enum DIRECTION {
+        LEFT = 0,
+        RIGHT = 1,
+        UP = 2,
+        DOWN = 3
+    }
+    export class Mob {
+        direction: DIRECTION;
         frame: number;
+        framedelay: number;
         position: Vector;
-        imgMob: HTMLImageElement;
+        minpostion: Vector;
+        maxpostion: Vector;
+        imgMob: HTMLImageElement[];
         mobpath: string[];
-        private flightdirection;
-        constructor(_position: Vector);
+        mode: string;
+        constructor(_position: Vector, _mode: string);
         update(): void;
     }
+    export {};
 }
 declare namespace Gemuesegarten {
     class Plant {
@@ -46,6 +71,7 @@ declare namespace Gemuesegarten {
         grown: Boolean;
         maxgrowlvl: number;
         growlvl: number;
+        bee: Mob[];
         private path;
         constructor(_seed: string, _position: Vector);
         draw(): void;
