@@ -25,11 +25,12 @@ declare namespace Gemuesegarten {
         mobspawntime: number;
         mobspawner: boolean;
         kill: Boolean;
+        sell: Boolean;
         status: STATUS;
         constructor(_position: Vector, _blocknumber: number);
         newBee(): void;
         killBee(): void;
-        doClick(_tool: string): void;
+        doClick(_tool: string, _itemshop: Shop): void;
         getpath(): Path2D;
         setHover(): void;
         clearHover(): void;
@@ -85,13 +86,20 @@ declare namespace Gemuesegarten {
         maxprice: number;
         buy: boolean;
         germanName: string;
+        randomprice: number;
+        amount: number;
     }
     class Shop {
-        pricerange: number;
         emaralamount: number;
+        imgeemarald: HTMLImageElement[];
+        timer: number;
         item: ITEM[];
-        constructor(_pricerange: number, _emaralamount: number);
-        randomprice(): number;
+        constructor(_emeralamount: number);
+        updateshop(): void;
+        updateUI(): void;
+        randomprice(): void;
+        sell(_name: string): void;
+        buy(_name: string): void;
     }
 }
 declare namespace Gemuesegarten {

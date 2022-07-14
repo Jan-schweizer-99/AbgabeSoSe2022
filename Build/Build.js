@@ -10,13 +10,13 @@ var Gemuesegarten;
     let block = [];
     let bee = [];
     let beenumber = 4;
+    let itemShop;
     let item = [];
     let gemamount;
     let allitems = ["potato", "wheat", "carrot", "beetroot", "pumpkin", "fertilizer", "pesticide", "beetrootseed", "wheatseed", "pumpkinseed", "potatoseed", "carrotseed"];
     let germanName = ["Kartoffel", "Weizen", "Karotte", "Rote Bete", "Kürbis", "Dünger", "Pestiziede", "Rote Bete", "Weizen", "Kürbis", "kartoffel", "Karotte"];
     let buy = [false, false, false, false, false, true, true, true, true, true, true, true];
-    let minprice = [11, 11, 11, 11, 11, 1, 1, 1, 1, 1, 1, 1];
-    let maxprice = [15, 15, 15, 15, 15, 5, 5, 5, 5, 5, 5, 5];
+    //let shopbuttonf: HTMLButtonElement;
     //item[0].germanName = "0";
     //paths
     //let circle: Path2D;
@@ -25,15 +25,6 @@ var Gemuesegarten;
         let startpositon = new Gemuesegarten.Vector(810, 110); // start Postion für Feld-Generator
         let positon = new Gemuesegarten.Vector(134, 67); // verschiebung der blöcke
         let positondown = new Gemuesegarten.Vector(-134, 67); // Position nach unten für Feld-Generator
-        for (let i = 0; i < allitems.length; i++) {
-            item[i] = {
-                itemname: allitems[i],
-                minprice: 0,
-                maxprice: 0,
-                buy: buy[i],
-                germanName: germanName[i]
-            };
-        }
         initslider();
         for (let i = 0; i < 6; i++) {
             for (let i = 0; i < 7; i++) {
@@ -42,16 +33,22 @@ var Gemuesegarten;
             }
             startpositon.add(positondown); //Addiere Startposition in die zweite Reihe
         }
-        for (let i = 0; i < beenumber; i++) { // Instanzierung der Bienen
-            bee[i] = new Gemuesegarten.Mob(new Gemuesegarten.Vector(Math.random() * (1920 - 0) + 0, Math.random() * (1080 - 0) + 0), "world");
-        }
         Gemuesegarten.mousepositon = new Gemuesegarten.Vector(0, 0);
         let canvas = document.querySelector("#canvas");
+        //let startgame: HTMLButtonElement = <HTMLButtonElement>document.querySelector("#startgame");
+        let startgame = document.querySelector("button#start");
         let tool = document.querySelector("div#shop");
         let slider = document.querySelector("div#menu");
+        let shopbutton = [];
+        for (let i = 0; i < 7; i++) { //installing shopbutton listener
+            shopbutton[i] = document.querySelector("button#buy" + allitems[i]);
+            shopbutton[i].addEventListener("click", buyItem);
+        }
+        //shopbuttonf.addEventListener("click", buyItem);
+        //shopbutton[0] = new HTMLButtonElement();
         tool.addEventListener("change", handleChange);
-        console.log(slider);
         slider.addEventListener("input", handleslider);
+        startgame.addEventListener("click", startGame);
         Gemuesegarten.ctx = canvas.getContext("2d");
         rect = canvas.getBoundingClientRect();
         scaleX = canvas.width / rect.width; //for canvas click listener
@@ -59,10 +56,24 @@ var Gemuesegarten;
         canvas.addEventListener("click", pathclicklisterner);
         //canvas.addEventListener("mousemove", pathmouseoverlisterner); //path listener für auswahl
         canvas.addEventListener("mousemove", setmouseposition); //oeffne bei der Mausbewegung irgendwo im auf der Seite die handlemousemove funktion
-        setInterval(update, 40);
         //requestAnimationFrame(update());
     }
+    function buyItem(_event) {
+        console.log(_event.target.id.slice(3)); //buy von elemnt id entfernen
+        itemShop.buy(_event.target.id.slice(3));
+    }
     function initslider() {
+        for (let i = 0; i < allitems.length; i++) {
+            item[i] = {
+                itemname: allitems[i],
+                minprice: 0,
+                maxprice: 0,
+                buy: buy[i],
+                germanName: germanName[i],
+                randomprice: 0,
+                amount: 0
+            };
+        }
         let beeAmount = document.body.querySelector("#bees");
         let beeslabel = document.body.querySelector("#beesLabel");
         let gemAmount = document.body.querySelector("#startgems");
@@ -82,6 +93,28 @@ var Gemuesegarten;
         }
         gemlabel.innerHTML = "Startgems: " + gemAmount.value;
         beeslabel.innerHTML = "Bienen: " + beeAmount.value;
+        beenumber = Number(beeAmount.value);
+        gemamount = Number(gemAmount.value);
+    }
+    function startGame(_event) {
+        console.log("test");
+        itemShop = new Gemuesegarten.Shop(gemamount);
+        for (let i = 0; i < item.length; i++) {
+            itemShop.item.push(item[i]);
+            //console.log(itemShop.item[i]);
+        }
+        itemShop.randomprice();
+        itemShop.updateUI();
+        let startScreen = document.body.querySelector("#menu");
+        startScreen.style.visibility = "hidden";
+        for (let i = 0; i < beenumber; i++) { // Instanzierung der Bienen
+            bee[i] = new Gemuesegarten.Mob(new Gemuesegarten.Vector(Math.random() * (1920 - 0) + 0, Math.random() * (1080 - 0) + 0), "world");
+        }
+        setInterval(update, 40);
+        setInterval(updatetime, 1000);
+    }
+    function updatetime() {
+        itemShop.updateshop();
     }
     function handleslider(_event) {
         //let progress: HTMLProgressElement = <HTMLProgressElement>document.querySelector("progress");
@@ -112,8 +145,8 @@ var Gemuesegarten;
             }
             if (name == "bees") {
                 let label = document.body.querySelector("#" + name + "Label");
-                //beenumber = Number(nowAmount); 
-                //label.innerHTML = "Bienen: " + beenumber;
+                beenumber = Number(nowAmount);
+                label.innerHTML = "Bienen: " + beenumber;
             }
         }
     }
@@ -152,8 +185,7 @@ var Gemuesegarten;
     function pathclicklisterner(_event) {
         for (let index = 0; index < block.length; index++) { //instanzierung
             if (Gemuesegarten.ctx.isPointInPath(block[index].path, Gemuesegarten.mousepositon.x, Gemuesegarten.mousepositon.y)) { //wenn innerhalb eines Pfades gedrückt wurde
-                block[index].doClick(tool); //dann Führe eine Aktion mit jeweiligem ausgewähltem Werkzeug durch
-                console.log(Gemuesegarten.mousepositon.x);
+                block[index].doClick(tool, itemShop); //dann Führe eine Aktion mit jeweiligem ausgewähltem Werkzeug durch
             }
         }
     }
@@ -192,8 +224,8 @@ var Gemuesegarten;
         path = new Path2D();
         hover = false;
         blocknumber;
-        waterlevel = [-20000, 0, 200]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
-        fertilizerlevel = [-20000, 0, 200]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
+        waterlevel = [-100, 0, 200]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
+        fertilizerlevel = [-100, 0, 200]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
         pestlevel;
         position;
         plant;
@@ -201,6 +233,7 @@ var Gemuesegarten;
         mobspawntime = 250;
         mobspawner = false;
         kill;
+        sell = false;
         status;
         constructor(_position, _blocknumber) {
             this.mobspawn = this.mobspawntime;
@@ -223,13 +256,17 @@ var Gemuesegarten;
                 this.mobspawn = this.mobspawntime; //Reset der Spawnzeit für neue Biene
             }
         }
-        doClick(_tool) {
+        doClick(_tool, _itemshop) {
+            //let itemShop: Shop = _itemshop;
             let tool = _tool;
             switch (this.status) {
                 case STATUS.DEFAULT:
-                    if (tool == "fertilizer") {
+                    if (tool == "fertilizer" && (_itemshop.item[5].amount > 0)) {
+                        _itemshop.item[5].amount--;
+                        _itemshop.updateUI();
+                        console.log();
                         this.imgBlock.src = "img/Ackerboden_1.webp";
-                        this.waterlevel[1] = 200;
+                        this.fertilizerlevel[1] = 200;
                         this.status = STATUS.FERTILIZED;
                     }
                     else {
@@ -247,23 +284,33 @@ var Gemuesegarten;
                     }
                     break;
                 case STATUS.WATERED:
-                    if (tool == "pumpkinseed") {
+                    if (tool == "pumpkinseed" && (_itemshop.item[9].amount > 0)) {
+                        _itemshop.item[9].amount--;
+                        _itemshop.updateUI();
                         this.plant = new Gemuesegarten.Plant("pumpkinseed", this.position);
                         this.status = STATUS.GROW;
                     }
-                    if (tool == "carrotseed") {
+                    if (tool == "carrotseed" && (_itemshop.item[11].amount > 0)) {
+                        _itemshop.item[11].amount--;
+                        _itemshop.updateUI();
                         this.plant = new Gemuesegarten.Plant("carrotseed", this.position);
                         this.status = STATUS.GROW;
                     }
-                    if (tool == "potatoseed") {
+                    if (tool == "potatoseed" && (_itemshop.item[10].amount > 0)) {
+                        _itemshop.item[10].amount--;
+                        _itemshop.updateUI();
                         this.plant = new Gemuesegarten.Plant("potatoseed", this.position);
                         this.status = STATUS.GROW;
                     }
-                    if (tool == "beetrootseed") {
+                    if (tool == "beetrootseed" && (_itemshop.item[7].amount > 0)) {
+                        _itemshop.item[7].amount--;
+                        _itemshop.updateUI();
                         this.plant = new Gemuesegarten.Plant("beetrootseed", this.position);
                         this.status = STATUS.GROW;
                     }
-                    if (tool == "wheatseed") {
+                    if (tool == "wheatseed" && (_itemshop.item[8].amount > 0)) {
+                        _itemshop.item[8].amount--;
+                        _itemshop.updateUI();
                         this.plant = new Gemuesegarten.Plant("wheatseed", this.position);
                         this.status = STATUS.GROW;
                     }
@@ -275,16 +322,26 @@ var Gemuesegarten;
                     if (tool == "water") {
                         this.waterlevel[1] += 50;
                     }
-                    if (tool == "fertilizer") {
+                    if (tool == "fertilizer" && (_itemshop.item[5].amount > 0)) {
+                        _itemshop.item[5].amount--;
+                        _itemshop.updateUI();
                         this.fertilizerlevel[1] += 50;
                     }
-                    if (tool == "pesticide") {
+                    if (tool == "pesticide" && (_itemshop.item[6].amount > 0)) {
+                        _itemshop.item[6].amount--;
+                        _itemshop.updateUI();
                         this.killBee();
                     }
                     break;
                 case STATUS.READY:
-                    if (tool == "pesticide") {
+                    if (tool == "pesticide" && (_itemshop.item[6].amount > 0)) {
+                        _itemshop.item[6].amount--;
+                        _itemshop.updateUI();
                         this.killBee();
+                    }
+                    if ((tool == "sell") && this.sell == true) {
+                        _itemshop.sell(this.plant.seed.substring(0, this.plant.seed.length - 4));
+                        this.kill = true;
                     }
                     break;
             }
@@ -351,6 +408,12 @@ var Gemuesegarten;
                     }
                     break;
                 case STATUS.READY:
+                    if (this.plant.bee.length > 0) {
+                        this.sell = false;
+                    }
+                    else {
+                        this.sell = true;
+                    }
                     this.updatePests();
                     console.log("Plant is Ready");
                     this.plant.draw();
@@ -546,26 +609,73 @@ var Gemuesegarten;
 var Gemuesegarten;
 (function (Gemuesegarten) {
     class Shop {
-        pricerange;
         emaralamount;
+        imgeemarald = [];
+        timer = 30;
         item = [];
         //allitems: string[] = ["potato", "wheat", "carrot", "beetroot", "pumpkin", "fertilizer", "pesticide" , "beetrootseed" , "wheatseed", "pumpkinseed", "potatoseed", "carrotseed" ];
         //buy: boolean[] = [false, false, false, false, false, false, true, true, true, true, true, true];
-        constructor(_pricerange, _emaralamount) {
-            this.pricerange = _pricerange;
-            this.emaralamount = _emaralamount;
-            for (let i = 0; i < this.allitems.length; i++) {
-                this.item[i].buy = this.buy[i];
-                this.item[i].itemname = this.allitems[i];
-                if (i <= 4) {
-                    this.item[i].price = this.randomprice();
-                }
+        constructor(_emeralamount) {
+            this.emaralamount = _emeralamount;
+            //this.randomprice();
+            this.updateUI();
+        }
+        updateshop() {
+            this.timer--;
+            if (this.timer <= -1) {
+                this.timer = 30;
+                this.randomprice();
+                this.updateUI();
             }
-            update();
-            void {};
+            let storetime = document.body.querySelector("#timer");
+            storetime.innerHTML = this.timer.toString() + "s";
+        }
+        updateUI() {
+            let emaraldLabel = document.body.querySelector("#emarals");
+            for (let i = 0; i < this.item.length; i++) {
+                this.imgeemarald[i] = new Image();
+                this.imgeemarald[i].src = "img/items/Emerald.webp";
+                this.imgeemarald[i].width = 24;
+                this.imgeemarald[i].height = 24;
+                let tool = document.body.querySelector("#" + this.item[i].itemname + "price");
+                tool.innerHTML = this.item[i].randomprice.toString();
+                tool.appendChild(this.imgeemarald[i]);
+            }
+            for (let i = 5; i < this.item.length; i++) {
+                let tool = document.body.querySelector("#" + this.item[i].itemname + "amount");
+                tool.innerHTML = this.item[i].amount.toString();
+                //tool.appendChild(this.imgeemarald[i]);
+            }
+            //console.log(this.item[2].randomprice);
+            emaraldLabel.innerHTML = this.emaralamount.toString() + "x";
         }
         randomprice() {
-            return Math.floor(Math.random() * this.pricerange);
+            for (let i = 0; i < this.item.length; i++) {
+                this.item[i].randomprice = Math.floor(Math.random() * (this.item[i].maxprice - this.item[i].minprice + 1) + this.item[i].minprice);
+            }
+        }
+        sell(_name) {
+            let itemname = _name;
+            for (let i = 0; i < this.item.length; i++) {
+                if (this.item[i].itemname == itemname) {
+                    console.log(itemname);
+                    this.emaralamount += this.item[i].randomprice;
+                    this.updateUI();
+                }
+            }
+        }
+        buy(_name) {
+            let itemname = _name;
+            for (let i = 0; i < this.item.length; i++) {
+                if ((this.item[i].itemname == itemname + "seed") || (this.item[i].itemname == itemname)) {
+                    console.log(this.item.length);
+                    if (this.emaralamount - this.item[i].randomprice >= 0) {
+                        this.emaralamount -= this.item[i].randomprice;
+                        this.item[i].amount++;
+                        this.updateUI();
+                    }
+                }
+            }
         }
     }
     Gemuesegarten.Shop = Shop;

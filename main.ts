@@ -14,14 +14,15 @@ namespace Gemuesegarten {
     let bee: Mob[] = [];
     let beenumber: number = 4;
 
-
+    let itemShop: Shop;
     let item: ITEM[] = [];
     let gemamount: number;
     let allitems: string[] = ["potato", "wheat", "carrot", "beetroot", "pumpkin", "fertilizer", "pesticide", "beetrootseed", "wheatseed", "pumpkinseed", "potatoseed", "carrotseed"];
     let germanName: string[] = ["Kartoffel", "Weizen", "Karotte", "Rote Bete", "Kürbis", "Dünger", "Pestiziede", "Rote Bete", "Weizen", "Kürbis", "kartoffel", "Karotte"];
     let buy: boolean[] = [false, false, false, false, false, true, true, true, true, true, true, true];
-    let minprice: number[] = [11, 11, 11, 11, 11, 1, 1, 1, 1, 1, 1, 1];
-    let maxprice: number[] = [15, 15, 15, 15, 15, 5, 5, 5, 5, 5, 5, 5];
+    
+
+    //let shopbuttonf: HTMLButtonElement;
 
     //item[0].germanName = "0";
 
@@ -43,16 +44,7 @@ namespace Gemuesegarten {
         let positon: Vector = new Vector(134, 67);                                                                  // verschiebung der blöcke
         let positondown: Vector = new Vector(-134, 67);                                                             // Position nach unten für Feld-Generator
 
-        for (let i: number = 0; i < allitems.length; i++) {
 
-            item[i] = {
-                itemname: allitems[i],
-                minprice: 0,
-                maxprice: 0,
-                buy: buy[i],
-                germanName: germanName[i]
-            };
-        }
         initslider();
 
         for (let i: number = 0; i < 6; i++) {
@@ -65,19 +57,39 @@ namespace Gemuesegarten {
             startpositon.add(positondown);                                                                                      //Addiere Startposition in die zweite Reihe
         }
 
-        for (let i: number = 0; i < beenumber; i++) {                                                               // Instanzierung der Bienen
-            bee[i] = new Mob(new Vector(Math.random() * (1920 - 0) + 0, Math.random() * (1080 - 0) + 0), "world");
-        }
+
 
         mousepositon = new Vector(0, 0);
         let canvas: HTMLCanvasElement = <HTMLCanvasElement>document.querySelector("#canvas");
 
+        //let startgame: HTMLButtonElement = <HTMLButtonElement>document.querySelector("#startgame");
+        let startgame: HTMLButtonElement = <HTMLButtonElement>document.querySelector("button#start");
         let tool: HTMLInputElement = <HTMLInputElement>document.querySelector("div#shop");
         let slider: HTMLInputElement = <HTMLInputElement>document.querySelector("div#menu");
+        let shopbutton: HTMLButtonElement[] = [];
+
+        for (let i: number = 0; i < 7; i++) {                                         //installing shopbutton listener
+            shopbutton[i] = <HTMLButtonElement>document.querySelector("button#buy" + allitems[i]);
+            shopbutton[i].addEventListener("click", buyItem);
+            
+        }
+
+
+        //shopbuttonf.addEventListener("click", buyItem);
+        //shopbutton[0] = new HTMLButtonElement();
+
+
+
+
+
+
 
         tool.addEventListener("change", handleChange);
-        console.log(slider);
         slider.addEventListener("input", handleslider);
+
+        startgame.addEventListener("click", startGame);
+        
+
 
 
         ctx = canvas.getContext("2d")!;
@@ -92,10 +104,26 @@ namespace Gemuesegarten {
         canvas.addEventListener("mousemove", setmouseposition); //oeffne bei der Mausbewegung irgendwo im auf der Seite die handlemousemove funktion
 
 
-        setInterval(update, 40);
+
         //requestAnimationFrame(update());
     }
+    function buyItem(_event: Event): void {
+        console.log((_event.target as Element).id.slice(3));            //buy von elemnt id entfernen
+        itemShop.buy((_event.target as Element).id.slice(3));
+    }
     function initslider(): void {
+        for (let i: number = 0; i < allitems.length; i++) {
+
+            item[i] = {
+                itemname: allitems[i],
+                minprice: 0,
+                maxprice: 0,
+                buy: buy[i],
+                germanName: germanName[i],
+                randomprice: 0,
+                amount: 0
+            };
+        }
         let beeAmount: HTMLInputElement = <HTMLInputElement>document.body.querySelector("#bees");
         let beeslabel: HTMLParagraphElement = <HTMLParagraphElement>document.body.querySelector("#beesLabel");
         let gemAmount: HTMLInputElement = <HTMLInputElement>document.body.querySelector("#startgems");
@@ -118,8 +146,32 @@ namespace Gemuesegarten {
         }
         gemlabel.innerHTML = "Startgems: " + gemAmount.value;
         beeslabel.innerHTML = "Bienen: " + beeAmount.value;
+        beenumber = Number(beeAmount.value);
+        gemamount = Number(gemAmount.value);
 
 
+    }
+    function startGame(_event: Event): void {
+        console.log("test");
+        itemShop = new Shop(gemamount);
+        for (let i: number = 0; i < item.length; i++) {
+            itemShop.item.push(item[i]);
+            //console.log(itemShop.item[i]);
+        }
+        itemShop.randomprice();
+        itemShop.updateUI();
+
+
+        let startScreen: HTMLDivElement = <HTMLDivElement>document.body.querySelector("#menu");
+        startScreen.style.visibility = "hidden";
+        for (let i: number = 0; i < beenumber; i++) {                                                               // Instanzierung der Bienen
+            bee[i] = new Mob(new Vector(Math.random() * (1920 - 0) + 0, Math.random() * (1080 - 0) + 0), "world");
+        }
+        setInterval(update, 40);
+        setInterval(updatetime, 1000);
+    }
+    function updatetime(): void {
+        itemShop.updateshop();
     }
     function handleslider(_event: Event): void {
         //let progress: HTMLProgressElement = <HTMLProgressElement>document.querySelector("progress");
@@ -157,9 +209,9 @@ namespace Gemuesegarten {
             }
             if (name == "bees") {
                 let label: HTMLParagraphElement = <HTMLParagraphElement>document.body.querySelector("#" + name + "Label");
-                //beenumber = Number(nowAmount); 
+                beenumber = Number(nowAmount); 
 
-                //label.innerHTML = "Bienen: " + beenumber;
+                label.innerHTML = "Bienen: " + beenumber;
             }
 
         }
@@ -203,8 +255,7 @@ namespace Gemuesegarten {
     function pathclicklisterner(_event: MouseEvent): void {
         for (let index: number = 0; index < block.length; index++) {                    //instanzierung
             if (ctx.isPointInPath(block[index].path, mousepositon.x, mousepositon.y)) { //wenn innerhalb eines Pfades gedrückt wurde
-                block[index].doClick(tool);                                             //dann Führe eine Aktion mit jeweiligem ausgewähltem Werkzeug durch
-                console.log(mousepositon.x);
+                block[index].doClick(tool, itemShop);                                             //dann Führe eine Aktion mit jeweiligem ausgewähltem Werkzeug durch
             }
         }
 

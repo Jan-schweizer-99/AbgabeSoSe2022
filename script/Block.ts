@@ -15,8 +15,8 @@ namespace Gemuesegarten {
         public hover: boolean = false;
 
         public blocknumber: number;
-        waterlevel: number[] = [-20000, 0, 200]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
-        fertilizerlevel: number[] = [-20000, 0, 200]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
+        waterlevel: number[] = [-100, 0, 200]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
+        fertilizerlevel: number[] = [-100, 0, 200]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
         pestlevel: number;
 
         position: Vector;
@@ -27,6 +27,7 @@ namespace Gemuesegarten {
         mobspawner: boolean = false;
 
         public kill: Boolean;
+        public sell: Boolean = false;
 
         public status: STATUS;
 
@@ -55,13 +56,17 @@ namespace Gemuesegarten {
                 this.mobspawn = this.mobspawntime; //Reset der Spawnzeit für neue Biene
             }
         }
-        public doClick(_tool: string): void {
+        public doClick(_tool: string, _itemshop: Shop): void {
+            //let itemShop: Shop = _itemshop;
             let tool: string = _tool;
             switch (this.status) {
                 case STATUS.DEFAULT:
-                    if (tool == "fertilizer") {
+                    if (tool == "fertilizer" && (_itemshop.item[5].amount > 0)) {
+                        _itemshop.item[5].amount--;
+                        _itemshop.updateUI();
+                        console.log();
                         this.imgBlock.src = "img/Ackerboden_1.webp";
-                        this.waterlevel[1] = 200;
+                        this.fertilizerlevel[1] = 200;
                         this.status = STATUS.FERTILIZED;
                     }
                     else {
@@ -79,23 +84,33 @@ namespace Gemuesegarten {
                     }
                     break;
                 case STATUS.WATERED:
-                    if (tool == "pumpkinseed") {
+                    if (tool == "pumpkinseed" && (_itemshop.item[9].amount > 0)) {
+                        _itemshop.item[9].amount--;
+                        _itemshop.updateUI();
                         this.plant = new Plant("pumpkinseed", this.position);
                         this.status = STATUS.GROW;
                     }
-                    if (tool == "carrotseed") {
+                    if (tool == "carrotseed" && (_itemshop.item[11].amount > 0)) {
+                        _itemshop.item[11].amount--;
+                        _itemshop.updateUI();
                         this.plant = new Plant("carrotseed", this.position);
                         this.status = STATUS.GROW;
                     }
-                    if (tool == "potatoseed") {
+                    if (tool == "potatoseed" && (_itemshop.item[10].amount > 0)) {
+                        _itemshop.item[10].amount--;
+                        _itemshop.updateUI();
                         this.plant = new Plant("potatoseed", this.position);
                         this.status = STATUS.GROW;
                     }
-                    if (tool == "beetrootseed") {
+                    if (tool == "beetrootseed" && (_itemshop.item[7].amount > 0)) {
+                        _itemshop.item[7].amount--;
+                        _itemshop.updateUI();
                         this.plant = new Plant("beetrootseed", this.position);
                         this.status = STATUS.GROW;
                     }
-                    if (tool == "wheatseed") {
+                    if (tool == "wheatseed" && (_itemshop.item[8].amount > 0)) {
+                        _itemshop.item[8].amount--;
+                        _itemshop.updateUI();
                         this.plant = new Plant("wheatseed", this.position);
                         this.status = STATUS.GROW;
                     }
@@ -107,16 +122,27 @@ namespace Gemuesegarten {
                     if (tool == "water") {
                         this.waterlevel[1] += 50;
                     }
-                    if (tool == "fertilizer") {
+                    if (tool == "fertilizer" && (_itemshop.item[5].amount > 0)) {
+                        _itemshop.item[5].amount--;
+                        _itemshop.updateUI();
                         this.fertilizerlevel[1] += 50;
                     }
-                    if (tool == "pesticide") {
+                    if (tool == "pesticide" && (_itemshop.item[6].amount > 0)) {
+                        _itemshop.item[6].amount--;
+                        _itemshop.updateUI();
                         this.killBee();
                     }
                     break;
                 case STATUS.READY:
-                    if (tool == "pesticide") {
+                    if (tool == "pesticide" && (_itemshop.item[6].amount > 0)) {
+                        _itemshop.item[6].amount--;
+                        _itemshop.updateUI();
                         this.killBee();
+                    }
+                    if ((tool == "sell") && this.sell == true) {
+
+                        _itemshop.sell(this.plant.seed.substring(0, this.plant.seed.length - 4));
+                        this.kill = true;
                     }
                     break;
 
@@ -202,6 +228,12 @@ namespace Gemuesegarten {
                     }
                     break;
                 case STATUS.READY:
+                    if (this.plant.bee.length > 0) {
+                        this.sell = false;
+                    }
+                    else {
+                        this.sell = true;
+                    }
                     this.updatePests();
                     console.log("Plant is Ready");
                     this.plant.draw();

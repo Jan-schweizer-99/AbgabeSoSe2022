@@ -51,7 +51,7 @@
                 <p id="beesLabel">Bienen: xx</p>
                 <input type="range" name="bees" min="1" max="20" value="0" class="slider" id="bees">
             </div>
-            <button class="startgame">START GAME</button>
+            <button class="startgame" id="start">START GAME</button>
             <div class="slide-container">
                 <p id="pesticideLabel">pesticide Preisspanne: xx</p>
                 <input type="range" name="pesticide" min="1" max="10" value="5" class="slider" id="maxpesticidePrice">
@@ -80,13 +80,15 @@
 
             <div class="slide-container">
                 <p id="beetrootseedLabel"></p>
-                <input type="range" name="beetrootseed" min="1" max="10" value="5" class="slider" id="maxbeetrootseedPrice">
+                <input type="range" name="beetrootseed" min="1" max="10" value="5" class="slider"
+                    id="maxbeetrootseedPrice">
             </div>
 
-            
+
             <div class="slide-container">
                 <p id="pumpkinseedLabel"></p>
-                <input type="range" name="pumpkinseed" min="1" max="10" value="5" class="slider" id="maxpumpkinseedPrice">
+                <input type="range" name="pumpkinseed" min="1" max="10" value="5" class="slider"
+                    id="maxpumpkinseedPrice">
             </div>
 
         </div>
@@ -98,139 +100,161 @@
 
     <canvas id="canvas" height="1080" width="1920"></canvas>
     <div id="shop">
-        <form action="" method="post" name="frmSurvey">
-            <table>
-                <tr>
-                    <td>
-                        shop reset timer:
-                    </td>
-                    <td>
-                        <p id="timer">50s</p>
-                    </td>
-                    <td>
-                    </td>
-                    <td>
-                        prices:
-                    </td>
-                    <td>
-                        <img height="50px" width="50px" src="img/vegetables/Kartoffel.webp">
-                        <p id="potatosellprice">20<img height="15px" width="15px" src="img/items/Emerald.webp"></p>
-                    </td>
-                    <td>
-                        <img height="50px" width="50px" src="img/vegetables/Weizen_item.webp">
-                        <p id="wheatsellprice">20<img height="15px" width="15px" src="img/items/Emerald.webp"></p>
-                    </td>
-                    <td>
-                        <img height="50px" width="50px" src="img/vegetables/Karotte.webp">
-                        <p id="carrotsellprice">20<img height="15px" width="15px" src="img/items/Emerald.webp"></p>
-                    </td>
-                    <td>
-                        <img height="50px" width="50px" src="img/vegetables/Rote_Bete.webp">
-                        <p id="beetrootsellprice">20<img height="15px" width="15px" src="img/items/Emerald.webp"></p>
-                    </td>
-                    <td>
-                        <img height="50px" width="50px" src="img/vegetables/Pumpkin.webp">
-                        <p id="pumpkinsellprice">20<img height="15px" width="15px" src="img/items/Emerald.webp"></p>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        shop
-                    </td>
-                    <td>
-                        <p id="fertilizerseedprice"><img height="15px" width="15px" src="img/items/Emerald.webp">50</p>
-                        <button class="shop" id="buyfertilizer">buy</button>
-                        <p id="fertilizeramount">xxx</p>
-                    </td>
-                    <td>
-                        <p id="waterprice">∞</p>
-                    </td>
-                    <td>
-                        <p id="pesticideseedprice"><img height="15px" width="15px" src="img/items/Emerald.webp">50</p>
-                        <button class="shop" id="buypesticide">buy</button>
-                        <p id="pesticideamount">xxx</p>
-                    </td>
-                    <td>
-                        <p id="beetrootseedprice"><img height="15px" width="15px" src="img/items/Emerald.webp">50</p>
-                        <button class="shop" id="buybeetroot">buy</button>
-                        <p id="beetrootseedamount">xxx</p>
-                    </td>
-                    <td>
-                        <p id="wheatseedprice"><img height="15px" width="15px" src="img/items/Emerald.webp">50</p>
-                        <button class="shop" id="buywheat">buy</button>
-                        <p id="wheatseedamount">xxx</p>
-                    </td>
-                    <td>
-                        <p id="pumpkinseedprice"><img height="15px" width="15px" src="img/items/Emerald.webp">50</p>
-                        <button class="shop" id="buypumpkin">buy</button>
-                        <p id="pumpkinseedamount">xxx</p>
-                    </td>
-                    <td>
-                        <p id="potatoseedprice"><img height="15px" width="15px" src="img/items/Emerald.webp">50</p>
-                        <button class="shop" id="buypotato">buy</button>
-                        <p id="potatoseedamount">xxx</p>
-                    </td>
-                    <td>
-                        <p id="carrotseedprice"><img height="15px" width="15px" src="img/items/Emerald.webp">50</p>
-                        <button class="shop" id="buycarrot">buy</button>
-                        <p id="carrotseedamount">xxx</p>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        tools
-                    </td>
-                    <td>
-                        <form id="tools">
-                            <label>
-                                <input type="radio" name="select" value="fertilizer" id="s1" title="fertilizer" checked>
-                                <img height="50px" width="50px" src="img/items/Holzhacke.webp">
-                            </label>
-                    </td>
-                    <td>
+        <table>
+            <tr>
+                <td>
+                    shop reset timer:
+                </td>
+                <td>
+                    <p id="timer">50s</p>
+                </td>
+                <td>
+
+                </td>
+                <td>
+                    prices:
+                </td>
+                <td>
+                    <img height="50px" width="50px" src="img/vegetables/Kartoffel.webp">
+                    <p id="potatoprice">20<img height="15px" width="15px" src="img/items/Emerald.webp"></p>
+                </td>
+                <td>
+                    <img height="50px" width="50px" src="img/vegetables/Weizen_item.webp">
+                    <p id="wheatprice">20<img height="15px" width="15px" src="img/items/Emerald.webp"></p>
+                </td>
+                <td>
+                    <img height="50px" width="50px" src="img/vegetables/Karotte.webp">
+                    <p id="carrotprice">20<img height="15px" width="15px" src="img/items/Emerald.webp"></p>
+                </td>
+                <td>
+                    <img height="50px" width="50px" src="img/vegetables/Rote_Bete.webp">
+                    <p id="beetrootprice">20<img height="15px" width="15px" src="img/items/Emerald.webp"></p>
+                </td>
+                <td>
+                    <img height="50px" width="50px" src="img/vegetables/Pumpkin.webp">
+                    <p id="pumpkinprice">20<img height="15px" width="15px" src="img/items/Emerald.webp"></p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    shop
+                </td>
+                <td>
+                    <p id="fertilizerprice"><img height="15px" width="15px" src="img/items/Emerald.webp">50</p>
+                    <button class="shop" id="buyfertilizer">buy</button>
+                    <p id="fertilizeramount">xxx</p>
+                </td>
+                <td>
+                    <p id="waterprice">∞</p>
+                </td>
+                <td>
+                    <p id="pesticideprice"><img height="15px" width="15px" src="img/items/Emerald.webp">50</p>
+                    <button class="shop" id="buypesticide">buy</button>
+                    <p id="pesticideamount">xxx</p>
+                </td>
+                <td>
+                    <p id="beetrootseedprice"><img height="15px" width="15px" src="img/items/Emerald.webp">50</p>
+                    <button class="shop" id="buybeetroot">buy</button>
+                    <p id="beetrootseedamount">xxx</p>
+                </td>
+                <td>
+                    <p id="wheatseedprice"><img height="15px" width="15px" src="img/items/Emerald.webp">50</p>
+                    <button class="shop" id="buywheat">buy</button>
+                    <p id="wheatseedamount">xxx</p>
+                </td>
+                <td>
+                    <p id="pumpkinseedprice"><img height="15px" width="15px" src="img/items/Emerald.webp">50</p>
+                    <button class="shop" id="buypumpkin">buy</button>
+                    <p id="pumpkinseedamount">xxx</p>
+                </td>
+                <td>
+                    <p id="potatoseedprice"><img height="15px" width="15px" src="img/items/Emerald.webp">50</p>
+                    <button class="shop" id="buypotato">buy</button>
+                    <p id="potatoseedamount">xxx</p>
+                </td>
+                <td>
+                    <p id="carrotseedprice"><img height="15px" width="15px" src="img/items/Emerald.webp">50</p>
+                    <button class="shop" id="buycarrot">buy</button>
+                    <p id="carrotseedamount">xxx</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    tools
+                </td>
+                <td>
+                    <form id="tools">
                         <label>
-                            <input type="radio" name="select" value="water" id="s2" title="water">
-                            <img height="50px" width="50px" src="img/items/Water_Bucket.webp">
+                            <input type="radio" name="select" value="fertilizer" id="s1" title="fertilizer" checked>
+                            <img height="50px" width="50px" src="img/items/Holzhacke.webp">
                         </label>
-                    </td>
-                    <td>
-                        <label>
-                            <input type="radio" name="select" value="pesticide" id="s3" title="pesticide">
-                            <img height="50px" width="50px" src="img/items/Iron_Sword.webp">
-                        </label>
-                    </td>
-                    <td>
-                        <label>
-                            <input type="radio" name="select" value="beetrootseed" id="s4" title="beetrootseed">
-                            <img height="50px" width="50px" src="img/seeds/Rote-Bete-Samen.webp">
-                        </label>
-                    </td>
-                    <td>
-                        <label>
-                            <input type="radio" name="select" value="wheatseed" id="s5" title="wheatseed">
-                            <img height="50px" width="50px" src="img/seeds/wheatseed.webp">
-                        </label>
-                    </td>
-                    <td>
-                        <label>
-                            <input type="radio" name="select" value="pumpkinseed" id="s6" title="pumpkinseed">
-                            <img height="50px" width="50px" src="img/seeds/Pumpkin_Seeds.webp">
-                        </label>
-                    </td>
-                    <td>
-                        <label>
-                            <input type="radio" name="select" value="potatoseed" id="s7" title="potatoseed">
-                            <img height="50px" width="50px" src="img/seeds/Kartoffel.webp">
-                        </label>
-                    </td>
-                    <td>
-                        <label>
-                            <input type="radio" name="select" value="carrotseed" id="s8" title="carrotseed">
-                            <img height="50px" width="50px" src="img/seeds/Karotte.webp">
-                        </label>
-                    </td>
-        </form>
-        </tr>
+                </td>
+                <td>
+                    <label>
+                        <input type="radio" name="select" value="water" id="s2" title="water">
+                        <img height="50px" width="50px" src="img/items/Water_Bucket.webp">
+                    </label>
+                </td>
+                <td>
+                    <label>
+                        <input type="radio" name="select" value="pesticide" id="s3" title="pesticide">
+                        <img height="50px" width="50px" src="img/items/Iron_Sword.webp">
+                    </label>
+                </td>
+                <td>
+                    <label>
+                        <input type="radio" name="select" value="beetrootseed" id="s4" title="beetrootseed">
+                        <img height="50px" width="50px" src="img/seeds/Rote-Bete-Samen.webp">
+                    </label>
+                </td>
+                <td>
+                    <label>
+                        <input type="radio" name="select" value="wheatseed" id="s5" title="wheatseed">
+                        <img height="50px" width="50px" src="img/seeds/wheatseed.webp">
+                    </label>
+                </td>
+                <td>
+                    <label>
+                        <input type="radio" name="select" value="pumpkinseed" id="s6" title="pumpkinseed">
+                        <img height="50px" width="50px" src="img/seeds/Pumpkin_Seeds.webp">
+                    </label>
+                </td>
+                <td>
+                    <label>
+                        <input type="radio" name="select" value="potatoseed" id="s7" title="potatoseed">
+                        <img height="50px" width="50px" src="img/seeds/Kartoffel.webp">
+                    </label>
+                </td>
+                <td>
+                    <label>
+                        <input type="radio" name="select" value="carrotseed" id="s8" title="carrotseed">
+                        <img height="50px" width="50px" src="img/seeds/Karotte.webp">
+                    </label>
+                </td>
+            </tr>
+            <td>
+            </td>
+            <td>
+            </td>
+            <td>
+            </td>
+            <td>
+            </td>
+            <td>
+            </td>
+            <td>
+            </td>
+            <td>
+            </td>
+            <td>
+                <p id="emarals">ff</p>
+            </td>
+            <td>
+                <label>
+                    <input type="radio" name="select" value="sell" id="s8" title="sell">
+                    <img height="50px" width="50px" src="img/items/Emerald.webp">
+                </label>
+            </td>
         </table>
         </form>
     </div>
