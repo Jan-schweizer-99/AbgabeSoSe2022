@@ -224,8 +224,8 @@ var Gemuesegarten;
         path = new Path2D();
         hover = false;
         blocknumber;
-        waterlevel = [-100, 0, 200]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
-        fertilizerlevel = [-100, 0, 200]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
+        waterlevel = [-100, 0, 400]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
+        fertilizerlevel = [-100, 0, 400]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
         pestlevel;
         position;
         plant;
@@ -266,7 +266,7 @@ var Gemuesegarten;
                         _itemshop.updateUI();
                         console.log();
                         this.imgBlock.src = "img/Ackerboden_1.webp";
-                        this.fertilizerlevel[1] = 200;
+                        this.fertilizerlevel[1] = this.fertilizerlevel[2] - 100;
                         this.status = STATUS.FERTILIZED;
                     }
                     else {
@@ -276,7 +276,7 @@ var Gemuesegarten;
                 case STATUS.FERTILIZED:
                     if (tool == "water") {
                         this.imgBlock.src = "img/Ackerboden_2.webp";
-                        this.waterlevel[1] = 200;
+                        this.waterlevel[1] = this.waterlevel[2] - 100;
                         this.status = STATUS.WATERED;
                     }
                     else {

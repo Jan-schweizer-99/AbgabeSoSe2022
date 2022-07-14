@@ -2,6 +2,7 @@ body {
   overflow: hidden; /* Hide scrollbars */
   background-color:#2e2e2e;
   color: white;
+  user-select: none; 
 
 }
 button.shop {
