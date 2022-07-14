@@ -59,7 +59,6 @@ var Gemuesegarten;
         canvas.addEventListener("click", pathclicklisterner);
         //canvas.addEventListener("mousemove", pathmouseoverlisterner); //path listener für auswahl
         canvas.addEventListener("mousemove", setmouseposition); //oeffne bei der Mausbewegung irgendwo im auf der Seite die handlemousemove funktion
-        //drawWorker();
         setInterval(update, 40);
         //requestAnimationFrame(update());
     }
