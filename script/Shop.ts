@@ -84,9 +84,10 @@ namespace Gemuesegarten {
 
             let itemname: string = _name;
 
+            
             for (let i: number = 0; i < this.item.length; i++) {
 
-                if ((this.item[i].itemname == itemname + "seed") || (this.item[i].itemname == itemname)) {
+                if ((this.item[i].itemname == itemname + "seed")/* || (this.item[i].itemname == itemname)*/) {
                     console.log(this.item.length);
                     if (this.emaralamount - this.item[i].randomprice >= 0) {
                         this.emaralamount -= this.item[i].randomprice;
@@ -95,9 +96,29 @@ namespace Gemuesegarten {
                     }
                 }
 
+                 //if ((this.item[i].itemname == "pesticide")  (this.item[i].itemname == "pesticide")
+
+            }
+            
+            if ((itemname == "fertilizer")) {
+                console.log(this.item.length);
+                if (this.emaralamount - this.item[5].randomprice >= 0) {
+                    this.emaralamount -= this.item[5].randomprice;
+                    this.item[5].amount++;
+                    this.updateUI();
+                }
+            }
+            if ((itemname == "pesticide")) {
+                console.log(this.item.length);
+                if (this.emaralamount - this.item[6].randomprice >= 0) {
+                    this.emaralamount -= this.item[6].randomprice;
+                    this.item[6].amount++;
+                    this.updateUI();
+                }
             }
 
         }
+        
 
     }
 }

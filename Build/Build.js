@@ -320,12 +320,12 @@ var Gemuesegarten;
                     break;
                 case STATUS.GROW:
                     if (tool == "water") {
-                        this.waterlevel[1] += 50;
+                        this.waterlevel[1] += 100;
                     }
                     if (tool == "fertilizer" && (_itemshop.item[5].amount > 0)) {
                         _itemshop.item[5].amount--;
                         _itemshop.updateUI();
-                        this.fertilizerlevel[1] += 50;
+                        this.fertilizerlevel[1] += 100;
                     }
                     if (tool == "pesticide" && (_itemshop.item[6].amount > 0)) {
                         _itemshop.item[6].amount--;
@@ -667,13 +667,30 @@ var Gemuesegarten;
         buy(_name) {
             let itemname = _name;
             for (let i = 0; i < this.item.length; i++) {
-                if ((this.item[i].itemname == itemname + "seed") || (this.item[i].itemname == itemname)) {
+                if ((this.item[i].itemname == itemname + "seed") /* || (this.item[i].itemname == itemname)*/) {
                     console.log(this.item.length);
                     if (this.emaralamount - this.item[i].randomprice >= 0) {
                         this.emaralamount -= this.item[i].randomprice;
                         this.item[i].amount++;
                         this.updateUI();
                     }
+                }
+                //if ((this.item[i].itemname == "pesticide")  (this.item[i].itemname == "pesticide")
+            }
+            if ((itemname == "fertilizer")) {
+                console.log(this.item.length);
+                if (this.emaralamount - this.item[5].randomprice >= 0) {
+                    this.emaralamount -= this.item[5].randomprice;
+                    this.item[5].amount++;
+                    this.updateUI();
+                }
+            }
+            if ((itemname == "pesticide")) {
+                console.log(this.item.length);
+                if (this.emaralamount - this.item[6].randomprice >= 0) {
+                    this.emaralamount -= this.item[6].randomprice;
+                    this.item[6].amount++;
+                    this.updateUI();
                 }
             }
         }

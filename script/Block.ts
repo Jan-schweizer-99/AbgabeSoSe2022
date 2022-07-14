@@ -120,12 +120,12 @@ namespace Gemuesegarten {
                     break;
                 case STATUS.GROW:
                     if (tool == "water") {
-                        this.waterlevel[1] += 50;
+                        this.waterlevel[1] +=  100;
                     }
                     if (tool == "fertilizer" && (_itemshop.item[5].amount > 0)) {
                         _itemshop.item[5].amount--;
                         _itemshop.updateUI();
-                        this.fertilizerlevel[1] += 50;
+                        this.fertilizerlevel[1] += 100;
                     }
                     if (tool == "pesticide" && (_itemshop.item[6].amount > 0)) {
                         _itemshop.item[6].amount--;
