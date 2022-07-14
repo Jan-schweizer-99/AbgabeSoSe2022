@@ -1,9 +1,11 @@
 namespace Gemuesegarten {
-    interface SHOP {
+    export interface ITEM {
 
         itemname: string;
-        price: number;
+        minprice: number;
+        maxprice: number;
         buy: boolean;
+        germanName: string;
 
                 
     }
@@ -13,9 +15,9 @@ namespace Gemuesegarten {
         emaralamount: number;
 
 
-        item: SHOP[] = [];
-        private allitems: string[] = ["potato", "wheat", "carrot", "beetroot", "pumpkin", "fertilizer", "pesticide" , "beetrootseed" , "wheatseed", "pumpkinseed", "potatoseed", "carrotseed" ];
-        private buy: boolean[] = [false, false, false, false, false, false, true, true, true, true, true, true];
+        item: ITEM[] = [];
+        //allitems: string[] = ["potato", "wheat", "carrot", "beetroot", "pumpkin", "fertilizer", "pesticide" , "beetrootseed" , "wheatseed", "pumpkinseed", "potatoseed", "carrotseed" ];
+        //buy: boolean[] = [false, false, false, false, false, false, true, true, true, true, true, true];
         
         constructor(_pricerange: number, _emaralamount: number) {
             this.pricerange = _pricerange;
@@ -31,7 +33,7 @@ namespace Gemuesegarten {
 
             }
             update(): void {
-                
+
             }
             
 

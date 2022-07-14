@@ -54,7 +54,6 @@ namespace Gemuesegarten {
         }
 
         update(): void {
-            console.log(this.frame);
             this.frame++;
 
             //this.imgMob.src = this.mobpath[0] + this.frame + this.mobpath[1];

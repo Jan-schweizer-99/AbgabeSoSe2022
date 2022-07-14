@@ -10,13 +10,31 @@ var Gemuesegarten;
     let block = [];
     let bee = [];
     let beenumber = 4;
+    let item = [];
+    let gemamount;
+    let allitems = ["potato", "wheat", "carrot", "beetroot", "pumpkin", "fertilizer", "pesticide", "beetrootseed", "wheatseed", "pumpkinseed", "potatoseed", "carrotseed"];
+    let germanName = ["Kartoffel", "Weizen", "Karotte", "Rote Bete", "Kürbis", "Dünger", "Pestiziede", "Rote Bete", "Weizen", "Kürbis", "kartoffel", "Karotte"];
+    let buy = [false, false, false, false, false, true, true, true, true, true, true, true];
+    let minprice = [11, 11, 11, 11, 11, 1, 1, 1, 1, 1, 1, 1];
+    let maxprice = [15, 15, 15, 15, 15, 5, 5, 5, 5, 5, 5, 5];
+    //item[0].germanName = "0";
     //paths
     //let circle: Path2D;
     function hndLoad(_event) {
         let index = 0; // Index für Feld-Feld Generator
-        let startpositon = new Gemuesegarten.Vector(820, 170); // start Postion für Feld-Generator
+        let startpositon = new Gemuesegarten.Vector(810, 110); // start Postion für Feld-Generator
         let positon = new Gemuesegarten.Vector(134, 67); // verschiebung der blöcke
         let positondown = new Gemuesegarten.Vector(-134, 67); // Position nach unten für Feld-Generator
+        for (let i = 0; i < allitems.length; i++) {
+            item[i] = {
+                itemname: allitems[i],
+                minprice: 0,
+                maxprice: 0,
+                buy: buy[i],
+                germanName: germanName[i]
+            };
+        }
+        initslider();
         for (let i = 0; i < 6; i++) {
             for (let i = 0; i < 7; i++) {
                 block[index] = new Gemuesegarten.Block(new Gemuesegarten.Vector(startpositon.x + i * positon.x, startpositon.y + i * positon.y), index);
@@ -29,8 +47,11 @@ var Gemuesegarten;
         }
         Gemuesegarten.mousepositon = new Gemuesegarten.Vector(0, 0);
         let canvas = document.querySelector("#canvas");
-        let tool = document.querySelector("div");
+        let tool = document.querySelector("div#shop");
+        let slider = document.querySelector("div#menu");
         tool.addEventListener("change", handleChange);
+        console.log(slider);
+        slider.addEventListener("input", handleslider);
         Gemuesegarten.ctx = canvas.getContext("2d");
         rect = canvas.getBoundingClientRect();
         scaleX = canvas.width / rect.width; //for canvas click listener
@@ -42,10 +63,66 @@ var Gemuesegarten;
         setInterval(update, 40);
         //requestAnimationFrame(update());
     }
+    function initslider() {
+        let beeAmount = document.body.querySelector("#bees");
+        let beeslabel = document.body.querySelector("#beesLabel");
+        let gemAmount = document.body.querySelector("#startgems");
+        let gemlabel = document.body.querySelector("#startgemsLabel");
+        for (let i = 0; i < allitems.length; i++) {
+            let slider = document.body.querySelector("#max" + allitems[i] + "Price");
+            let label = document.body.querySelector("#" + allitems[i] + "Label");
+            //label.innerHTML = nowAmount;
+            item[i].maxprice = Number(slider.value);
+            item[i].minprice = Number(slider.min);
+            if (item[i].buy == false) {
+                label.innerHTML = item[i].germanName + " Gewinn: " + slider.min + "/" + slider.value + "/" + slider.max;
+            }
+            if (item[i].buy == true) {
+                label.innerHTML = item[i].germanName + " kosten: " + slider.min + "/" + slider.value + "/" + slider.max;
+            }
+        }
+        gemlabel.innerHTML = "Startgems: " + gemAmount.value;
+        beeslabel.innerHTML = "Bienen: " + beeAmount.value;
+    }
+    function handleslider(_event) {
+        //let progress: HTMLProgressElement = <HTMLProgressElement>document.querySelector("progress");
+        let nowAmount = _event.target.value;
+        let minAmount = _event.target.min;
+        let maxAmount = _event.target.max;
+        let name = _event.target.name;
+        //progress.value = parseFloat(amount);
+        for (let i = 0; i < allitems.length; i++) {
+            if (name == allitems[i]) {
+                let label = document.body.querySelector("#" + name + "Label");
+                //document.getElementById(name + "Label").innerHTML = name;
+                item[i].maxprice = Number(nowAmount);
+                item[i].minprice = Number(minAmount);
+                if (item[i].buy == false) {
+                    label.innerHTML = item[i].germanName + " Gewinn: " + minAmount + "/" + nowAmount + "/" + maxAmount;
+                }
+                if (item[i].buy == true) {
+                    label.innerHTML = item[i].germanName + " kosten: " + minAmount + "/" + nowAmount + "/" + maxAmount;
+                }
+                //console.log(item[0].itemname);
+                //console.log(amount);
+            }
+            if (name == "startgems") {
+                let label = document.body.querySelector("#" + name + "Label");
+                gemamount = Number(nowAmount);
+                label.innerHTML = "Startgems: " + gemamount;
+            }
+            if (name == "bees") {
+                let label = document.body.querySelector("#" + name + "Label");
+                //beenumber = Number(nowAmount); 
+                //label.innerHTML = "Bienen: " + beenumber;
+            }
+        }
+    }
     function handleChange(_event) {
         let formData = new FormData(document.forms[0]); //update Formdatas
         for (let entry of formData) { //array of all Formdata
             let item = document.querySelector("[value='" + entry[1] + "']");
+            console.log(item.value);
             tool = item.value; //set selected item
         }
     }
@@ -66,7 +143,7 @@ var Gemuesegarten;
                     if ((block[index].status == Gemuesegarten.STATUS.GROW) || (block[index].status == Gemuesegarten.STATUS.READY)) { //Der Blockzustand im Wachstum oder Fertig und
                         if (block[index].mobspawner == false) { //fals der Mobspawner aus ist
                             block[index].mobspawner = true; //schalte den Mobspawner des Blockes an
-                            bee[i] = new Gemuesegarten.Mob(new Gemuesegarten.Vector(Math.random() * (1920 - 0) + 0, Math.random() * (1080 - 0) + 0), "world"); //und setze die gleiche "Welt" Biene wieder an zurück an eine Random Position 
+                            bee[i] = new Gemuesegarten.Mob(new Gemuesegarten.Vector(-40, Math.random() * (1080 - 0) + 0), "world"); //und setze die gleiche "Welt" Biene wieder an zurück an eine Random Position 
                         }
                     }
                 }
@@ -77,6 +154,7 @@ var Gemuesegarten;
         for (let index = 0; index < block.length; index++) { //instanzierung
             if (Gemuesegarten.ctx.isPointInPath(block[index].path, Gemuesegarten.mousepositon.x, Gemuesegarten.mousepositon.y)) { //wenn innerhalb eines Pfades gedrückt wurde
                 block[index].doClick(tool); //dann Führe eine Aktion mit jeweiligem ausgewähltem Werkzeug durch
+                console.log(Gemuesegarten.mousepositon.x);
             }
         }
     }
@@ -349,7 +427,6 @@ var Gemuesegarten;
             }
         }
         update() {
-            console.log(this.frame);
             this.frame++;
             //this.imgMob.src = this.mobpath[0] + this.frame + this.mobpath[1];
             Gemuesegarten.ctx.drawImage(this.imgMob[this.frame], this.position.x - 40, this.position.y - 40);
@@ -473,8 +550,8 @@ var Gemuesegarten;
         pricerange;
         emaralamount;
         item = [];
-        allitems = ["potato", "wheat", "carrot", "beetroot", "pumpkin", "fertilizer", "pesticide", "beetrootseed", "wheatseed", "pumpkinseed", "potatoseed", "carrotseed"];
-        buy = [false, false, false, false, false, false, true, true, true, true, true, true];
+        //allitems: string[] = ["potato", "wheat", "carrot", "beetroot", "pumpkin", "fertilizer", "pesticide" , "beetrootseed" , "wheatseed", "pumpkinseed", "potatoseed", "carrotseed" ];
+        //buy: boolean[] = [false, false, false, false, false, false, true, true, true, true, true, true];
         constructor(_pricerange, _emaralamount) {
             this.pricerange = _pricerange;
             this.emaralamount = _emaralamount;

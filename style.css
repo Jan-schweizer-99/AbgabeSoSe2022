@@ -1,4 +1,10 @@
-button {
+body {
+  overflow: hidden; /* Hide scrollbars */
+  background-color:#2e2e2e;
+  color: white;
+
+}
+button.shop {
 	box-shadow: 3px 4px 0px 0px #8a2a21;
 	background:linear-gradient(to bottom, #c62d1f 5%, #f24437 100%);
 	background-color:#c62d1f;
@@ -12,17 +18,37 @@ button {
 	text-decoration:none;
 	text-shadow:0px 1px 0px #810e05;
 }
-button {
+button.shop {
 	background:linear-gradient(to bottom, #f24437 5%, #c62d1f 100%);
 	background-color:#f24437;
 }
-button:active {
+button.shop:active {
 	position:relative;
 	top:1px;
 }
 p {
     text-align: center;
 }
+Button.startgame{
+	display:inline-block;
+	margin:20px;
+	text-decoration:none;
+	font-family:Arial;
+	font-size:16px;
+	border:2px solid #5BBB2B;
+	border-bottom:1px solid #5BBB2B;
+	border-right:1px solid #5BBB2B;
+	border-radius:15px 5px;
+	color:#5BBB2B;
+	background-color:#C0E9B5;
+	padding:5px 10px;
+}
+Button.startgame:hover{
+	border-color:#4A9824;
+	color:#4A9824;
+	border-radius:5px 15px;
+}
+
 
         
 
@@ -44,7 +70,7 @@ p {
   [type=radio]:checked + img {
     background-color: #f00;
   }
-  div {
+  div#shop {
     position: absolute; 
     /*position: relative;
     //position: fixed;*/
@@ -54,6 +80,21 @@ p {
     padding-right: 50px;
     padding-top: 50px;
   }
+  div#menu{
+    position: absolute; 
+    z-index: 2;
+    width: 100%;
+    height: 1080px;
+    background-color: #2e2e2e;
+    text-align: center;
+    color: white;
+    justify-content: center;
+    display: flex;
+  }
+  .menu1 {
+    padding: 50px;
+  }
+
   span {
     float: none;
     position: fixed;
@@ -63,4 +104,372 @@ p {
     width: 280px;
     z-index: 1;
 
+}
+.slide-container {
+  margin: 0 auto;
+  width: 200px;
+}
+
+.slider {
+  -webkit-appearance: none;
+  width: 100%;
+  
+  height: 4px;
+  border-radius: 8px;
+  background: #FFFFFF;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+/*Bienen*/
+#bees.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 40px;
+  height: 40px;
+  background-image: url("img/bee/world/Bee_types_BE_5.png");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+#bees.slider::-moz-range-thumb {
+  width: 40px;
+  height: 40px;
+  background-image: url("img/bee/world/Bee_types_BE_5.png");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+/*gems*/
+#startgems.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 40px;
+  height: 40px;
+  border: 0;
+
+  background-image: url("img/items/Emerald.webp");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+#gems.slider::-moz-range-thumb {
+  width: 40px;
+  height: 40px;
+  border: 0;
+
+  background-image: url("img/items/Emerald.webp");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+/*Verkaufspreise*/
+#maxpumpkinPrice.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 40px;
+  height: 40px;
+  border: 0;
+
+  background-image: url("img/Pumpkin/Pumpkin_Stem_Age_81.webp");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+#maxpumpkinPrice.slider::-moz-range-thumb {
+  width: 50px;
+  height: 50px;
+  border: 0;
+
+  background-image: url("img/Pumpkin/Pumpkin_Stem_Age_81.webp");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+#maxwheatPrice.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 50px;
+  height: 50px;
+  border: 0;
+
+  background-image: url("img/vegetables/Weizen_item.webp");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+#maxwheatPrice.slider::-moz-range-thumb {
+  width: 50px;
+  height: 50px;
+  border: 0;
+
+  background-image: url("img/vegetables/Weizen_item.webp");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+#maxpotatoPrice.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 50px;
+  height: 50px;
+  border: 0;
+
+  background-image: url("img/vegetables/Kartoffel.webp");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+#maxpotatoPrice.slider::-moz-range-thumb {
+  width: 50px;
+  height: 50px;
+  border: 0;
+
+  background-image: url("img/vegetables/Kartoffel.webp");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+#maxbeetrootPrice.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 50px;
+  height: 50px;
+  border: 0;
+
+  background-image: url("img/vegetables/Rote_Bete.webp");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+#maxbeetrootPrice.slider::-moz-range-thumb {
+  width: 50px;
+  height: 50px;
+  border: 0;
+
+  background-image: url("img/vegetables/Rote_Bete.webp");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+#maxcarrotPrice.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 50px;
+  height: 50px;
+  border: 0;
+
+  background-image: url("img/vegetables/Karotte.webp");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+#maxcarrotPrice.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  border: 0;
+
+  background-image: url("img/vegetables/Karotte.webp");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+/*einkaufspreise*/
+
+#maxpotatoseedPrice.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 50px;
+  height: 50px;
+  border: 0;
+
+  background-image: url("img/seeds/Kartoffel.webp");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+#maxpotatoseedPrice.slider::-moz-range-thumb {
+  width: 50px;
+  height: 50px;
+  border: 0;
+
+  background-image: url("img/seeds/Kartoffel.webp");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+#maxwheatseedPrice.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 50px;
+  height: 50px;
+  border: 0;
+
+  background-image: url("img/seeds/wheatseed.webp");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+#maxwheatseedPrice.slider::-moz-range-thumb {
+  width: 50px;
+  height: 50px;
+  border: 0;
+
+  background-image: url("img/seeds/wheatseed.webp");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+#maxcarrotseedPrice.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 50px;
+  height: 50px;
+  border: 0;
+
+  background-image: url("img/seeds/Karotte.webp");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+#maxcarrotseedPrice.slider::-moz-range-thumb {
+  width: 50px;
+  height: 50px;
+  border: 0;
+
+  background-image: url("img/seeds/Karotte.webp");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+#maxbeetrootseedPrice.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 50px;
+  height: 50px;
+  border: 0;
+
+  background-image: url("img/seeds/Rote-Bete-Samen.webp");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+#maxbeetrootseedPrice.slider::-moz-range-thumb {
+  width: 50px;
+  height: 50px;
+  border: 0;
+
+  background-image: url("img/seeds/Rote-Bete-Samen.webp");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+#maxpumpkinseedPrice.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 50px;
+  height: 50px;
+  border: 0;
+
+  background-image: url("img/seeds/Pumpkin_Seeds.webp");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+#maxpumpkinseedPrice.slider::-moz-range-thumb {
+  width: 50px;
+  height: 50px;
+  border: 0;
+
+  background-image: url("img/seeds/Pumpkin_Seeds.webp");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+/*tools*/
+#maxpesticidePrice.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 50px;
+  height: 50px;
+  border: 0;
+
+  background-image: url("img/items/Iron_Sword.webp");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+#maxpesticidePrice.slider::-moz-range-thumb {
+  width: 50px;
+  height: 50px;
+  border: 0;
+
+  background-image: url("img/items/Iron_Sword.webp");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+#maxfertilizerPrice.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 50px;
+  height: 50px;
+  border: 0;
+
+  background-image: url("img/items/Holzhacke.webp");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+#maxfertilizerPrice.slider::-moz-range-thumb {
+  width: 50px;
+  height: 50px;
+  border: 0;
+
+  background-image: url("img/items/Holzhacke.webp");
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  cursor: pointer;
 }

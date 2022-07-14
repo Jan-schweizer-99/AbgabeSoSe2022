@@ -79,21 +79,20 @@ declare namespace Gemuesegarten {
     }
 }
 declare namespace Gemuesegarten {
-    interface SHOP {
+    interface ITEM {
         itemname: string;
-        price: number;
+        minprice: number;
+        maxprice: number;
         buy: boolean;
+        germanName: string;
     }
-    export class Shop {
+    class Shop {
         pricerange: number;
         emaralamount: number;
-        item: SHOP[];
-        private allitems;
-        private buy;
+        item: ITEM[];
         constructor(_pricerange: number, _emaralamount: number);
         randomprice(): number;
     }
-    export {};
 }
 declare namespace Gemuesegarten {
     class Vector {
