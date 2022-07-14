@@ -1,6 +1,7 @@
 declare namespace Gemuesegarten {
     let ctx: CanvasRenderingContext2D;
     let mousepositon: Vector;
+    function getPercentage(_now: number, _min: number, _max: number): number;
 }
 declare namespace Gemuesegarten {
     enum STATUS {

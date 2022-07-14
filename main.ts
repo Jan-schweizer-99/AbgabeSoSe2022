@@ -1,6 +1,7 @@
 namespace Gemuesegarten {
 
     export let ctx: CanvasRenderingContext2D;
+    
     window.addEventListener("load", hndLoad);
     export let mousepositon: Vector;
     let rect: DOMRect;
@@ -22,25 +23,12 @@ namespace Gemuesegarten {
     let buy: boolean[] = [false, false, false, false, false, true, true, true, true, true, true, true];
     
 
-    //let shopbuttonf: HTMLButtonElement;
-
-    //item[0].germanName = "0";
-
-
-    //paths
-
-
-
-
-
-    //let circle: Path2D;
-
 
     function hndLoad(_event: Event): void {
         let index: number = 0;                                                                                      // Index für Feld-Feld Generator
 
 
-        let startpositon: Vector = new Vector(810, 110);                                                            // start Postion für Feld-Generator
+        let startpositon: Vector = new Vector(660, 150);                                                            // start Postion für Feld-Generator
         let positon: Vector = new Vector(134, 67);                                                                  // verschiebung der blöcke
         let positondown: Vector = new Vector(-134, 67);                                                             // Position nach unten für Feld-Generator
 
@@ -151,31 +139,29 @@ namespace Gemuesegarten {
 
 
     }
-    function startGame(_event: Event): void {
-        console.log("test");
-        itemShop = new Shop(gemamount);
-        for (let i: number = 0; i < item.length; i++) {
+    function startGame(_event: Event): void {             //start des spieles
+        
+        let startScreen: HTMLDivElement = <HTMLDivElement>document.body.querySelector("#menu");       //definiere das slider menü
+
+        document.body.requestFullscreen();                //starte Vollbild                 
+        itemShop = new Shop(gemamount);                   //erstellen neuen shop
+        for (let i: number = 0; i < item.length; i++) {   //schiebe eingestellte slider werte in den shop 
             itemShop.item.push(item[i]);
-            //console.log(itemShop.item[i]);
         }
-        itemShop.randomprice();
-        itemShop.updateUI();
-
-
-        let startScreen: HTMLDivElement = <HTMLDivElement>document.body.querySelector("#menu");
-        startScreen.style.visibility = "hidden";
-        for (let i: number = 0; i < beenumber; i++) {                                                               // Instanzierung der Bienen
+        itemShop.randomprice();                           //generiere einen zufälligen shop preis
+        startScreen.style.visibility = "hidden";          //verstecke das slider menü
+        for (let i: number = 0; i < beenumber; i++) {     // Instanzierung der Bienen
             bee[i] = new Mob(new Vector(Math.random() * (1920 - 0) + 0, Math.random() * (1080 - 0) + 0), "world");
         }
-        setInterval(update, 40);
-        setInterval(updatetime, 1000);
+        setInterval(update, 40);                          //stare update funktion
+        setInterval(updatetime, 1000);                    //stare updateshopzeit funktion
     }
+
     function updatetime(): void {
         itemShop.updateshop();
     }
-    function handleslider(_event: Event): void {
-        //let progress: HTMLProgressElement = <HTMLProgressElement>document.querySelector("progress");
 
+    function handleslider(_event: Event): void {
 
         let nowAmount: string = (<HTMLInputElement>_event.target).value;
         let minAmount: string = (<HTMLInputElement>_event.target).min;
@@ -227,16 +213,28 @@ namespace Gemuesegarten {
         }
     }
     function update(): void {
+        let canvas: HTMLCanvasElement = <HTMLCanvasElement>document.querySelector("#canvas");
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = "#2e2e2e";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fill();
+
         for (let index: number = 0; index < block.length; index++) {
-            let position: HTMLElement = <HTMLElement>document.querySelector("span");                    //deklariere das span
-            position.innerHTML = block[selectedblock].blockinfo;                                        //Textausgabe des span
+
+            let progresbarWater: HTMLProgressElement = <HTMLProgressElement>document.querySelector("#prog-bar-water");
+            let progresbarFertilizer: HTMLProgressElement = <HTMLProgressElement>document.querySelector("#prog-bar-fertilizer");
+            progresbarWater.max = 100;
+            progresbarFertilizer.max = 100;
+            progresbarWater.value = getPercentage(block[selectedblock].waterlevel[1], block[selectedblock].waterlevel[0], block[selectedblock].waterlevel[2]);
+            progresbarFertilizer.value = getPercentage(block[selectedblock].fertilizerlevel[1], block[selectedblock].fertilizerlevel[0], block[selectedblock].fertilizerlevel[2]);
 
             if (block[index].kill == true) {                                                            //Zerstörung des Blockes -> weitere in Block.ts
                 block[index] = new Block(block[index].position, block[index].blocknumber);              //ersetze zerstörten block 
 
             }
-            block[index].update();
+
+            block[index].update();                                                                      //update des blockes
         }
         for (let i: number = 0; i < beenumber; i++) {                                                                               //update alle Weltbienen
             bee[i].update();                                                                                                        //..
@@ -245,7 +243,7 @@ namespace Gemuesegarten {
                     if ((block[index].status == STATUS.GROW) || (block[index].status == STATUS.READY)) {                            //Der Blockzustand im Wachstum oder Fertig und
                         if (block[index].mobspawner == false) {                                                                     //fals der Mobspawner aus ist
                             block[index].mobspawner = true;                                                                         //schalte den Mobspawner des Blockes an
-                            bee[i] = new Mob(new Vector(-40, Math.random() * (1080 - 0) + 0), "world");  //und setze die gleiche "Welt" Biene wieder an zurück an eine Random Position 
+                            bee[i] = new Mob(new Vector(-40, Math.random() * (1080 - 0) + 0), "world");                             //und setze die gleiche "Welt" Biene wieder an zurück an eine Random Position 
                         }
                     }
                 }
@@ -255,14 +253,14 @@ namespace Gemuesegarten {
     function pathclicklisterner(_event: MouseEvent): void {
         for (let index: number = 0; index < block.length; index++) {                    //instanzierung
             if (ctx.isPointInPath(block[index].path, mousepositon.x, mousepositon.y)) { //wenn innerhalb eines Pfades gedrückt wurde
-                block[index].doClick(tool, itemShop);                                             //dann Führe eine Aktion mit jeweiligem ausgewähltem Werkzeug durch
+                block[index].doClick(tool, itemShop);                                   //dann Führe eine Aktion mit auf dem dementsprechenden Block mit jeweiligem ausgewähltem Werkzeug durch
             }
         }
 
     }
 
     function setmouseposition(_event: MouseEvent): void {
-        let WTF: number[] = [41, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40];
+        
         let position: HTMLElement = <HTMLElement>document.querySelector("span");  //deklariere das span
         mousepositon.x = (_event.clientX - rect.left) * scaleX;                   //deklariere die X position mit der eventfunktion der Maus
         mousepositon.y = (_event.clientY - rect.top) * scaleY;                    //deklariere die y position mit der eventfunktion der Maus
@@ -273,15 +271,20 @@ namespace Gemuesegarten {
                 position.style.left = (_event.clientX + 30) + "px";                     //aendere die Position des span (x) neben der Maus
                 position.style.top = (_event.clientY) + "px";                           //aendere die position des span (y) neben der Maus
 
-                selectedblock = block[index].blocknumber;                       //update ausgewählten block
-                block[WTF[index]].setHover();                                   //zeige Hover Position auf Feldern an
+                selectedblock = block[index].blocknumber;                  //update ausgewählten block
+                block[index].setHover();                                   //zeige Hover Position auf Feldern an
 
             }
             else {
-                block[WTF[index]].clearHover();
+                block[index].clearHover();
             }
         }
         //console.log(mousepositon.x, mousepositon.y);
 
     }
+    export function getPercentage(_now: number, _min: number, _max: number): number {       //Rechne prozentwerte für slider aus
+        let round: number = 1000;
+        let percentage: number = ((_now - _min) / (_max - _min)) * 100;
+        return Math.round(percentage * round) / round;
+      }
 }

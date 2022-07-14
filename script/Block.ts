@@ -15,8 +15,8 @@ namespace Gemuesegarten {
         public hover: boolean = false;
 
         public blocknumber: number;
-        waterlevel: number[] = [-100, 0, 400]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
-        fertilizerlevel: number[] = [-100, 0, 400]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
+        waterlevel: number[] = [-100, -100, 400]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
+        fertilizerlevel: number[] = [-100, -100, 500]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
         pestlevel: number;
 
         position: Vector;
@@ -30,6 +30,7 @@ namespace Gemuesegarten {
         public sell: Boolean = false;
 
         public status: STATUS;
+
 
 
 
@@ -170,17 +171,25 @@ namespace Gemuesegarten {
     
         }*/
         update(): void {
+            //let position: HTMLElement = <HTMLElement>document.querySelector("span");                    //deklariere das span
+
+            //progresbar[0] = new HTMLProgressElement();
+            //2progresbar[1] = new HTMLProgressElement();
+            
+
+
             this.blockinfo = "water: " + this.waterlevel[1].toString() + " min: " + this.waterlevel[0].toString() + " max: " + this.waterlevel[2].toString() + "<br> fertilizer: " + this.fertilizerlevel[1].toString() + " min: " + this.fertilizerlevel[0].toString() + " max: " + this.fertilizerlevel[2].toString();
             ctx.drawImage(this.imgBlock, this.position.x, this.position.y);
             if (this.hover == true) {
-                ctx.fill(this.path);
                 ctx.fillStyle = "#ff000050";
+                ctx.fill(this.path);
+
                 //this.drawPath();
             }
             if (this.hover == false) {
-
-                ctx.fill(this.path);
                 ctx.fillStyle = "#ff000000";
+                ctx.fill(this.path);
+
                 //this.drawPath();
             }
 
@@ -215,7 +224,7 @@ namespace Gemuesegarten {
                         this.kill = true;
 
                     }
-                    if (this.fertilizerlevel[1] > this.waterlevel[2]) {
+                    if (this.fertilizerlevel[1] > this.fertilizerlevel[2]) {
                         this.kill = true;
                     }
 

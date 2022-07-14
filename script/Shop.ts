@@ -66,6 +66,7 @@ namespace Gemuesegarten {
             for (let i: number = 0; i < this.item.length; i++) {
                 this.item[i].randomprice = Math.floor(Math.random() * (this.item[i].maxprice - this.item[i].minprice + 1) + this.item[i].minprice);
             }
+            this.updateUI();
         }
 
         sell(_name: string): void {
@@ -118,7 +119,7 @@ namespace Gemuesegarten {
             }
 
         }
-        
+
 
     }
 }
