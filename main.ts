@@ -3,7 +3,9 @@ namespace Gemuesegarten {
     export let ctx: CanvasRenderingContext2D;
     
     window.addEventListener("load", hndLoad);
-    export let mousepositon: Vector;
+
+    let mousepositon: Vector;
+
     let rect: DOMRect;
     let scaleX: number;
     let scaleY: number;
@@ -15,6 +17,7 @@ namespace Gemuesegarten {
     let bee: Mob[] = [];
     let beenumber: number = 4;
 
+    //data for shop 
     let itemShop: Shop;
     let item: ITEM[] = [];
     let gemamount: number;
@@ -33,7 +36,7 @@ namespace Gemuesegarten {
         let positondown: Vector = new Vector(-134, 67);                                                             // Position nach unten für Feld-Generator
 
 
-        initslider();
+        initslider();           
 
         for (let i: number = 0; i < 6; i++) {
             for (let i: number = 0; i < 7; i++) {
@@ -49,59 +52,37 @@ namespace Gemuesegarten {
 
         mousepositon = new Vector(0, 0);
         let canvas: HTMLCanvasElement = <HTMLCanvasElement>document.querySelector("#canvas");
-
-        //let startgame: HTMLButtonElement = <HTMLButtonElement>document.querySelector("#startgame");
         let startgame: HTMLButtonElement = <HTMLButtonElement>document.querySelector("button#start");
         let tool: HTMLInputElement = <HTMLInputElement>document.querySelector("div#shop");
         let slider: HTMLInputElement = <HTMLInputElement>document.querySelector("div#menu");
+        
         let shopbutton: HTMLButtonElement[] = [];
 
-        for (let i: number = 0; i < 7; i++) {                                         //installing shopbutton listener
+        for (let i: number = 0; i < 7; i++) {                                                       //installing shopbutton listener
             shopbutton[i] = <HTMLButtonElement>document.querySelector("button#buy" + allitems[i]);
             shopbutton[i].addEventListener("click", buyItem);
-            
         }
-
-
-        //shopbuttonf.addEventListener("click", buyItem);
-        //shopbutton[0] = new HTMLButtonElement();
-
-
-
-
-
 
 
         tool.addEventListener("change", handleChange);
         slider.addEventListener("input", handleslider);
-
         startgame.addEventListener("click", startGame);
-        
-
-
-
         ctx = canvas.getContext("2d")!;
-        rect = canvas.getBoundingClientRect();
 
-        scaleX = canvas.width / rect.width; //for canvas click listener
-        scaleY = canvas.height / rect.height; //for canvas click listener
+        rect = canvas.getBoundingClientRect();                //initialisierung für canvas click listener
+        scaleX = canvas.width / rect.width;                   //initialisierung für canvas click listener
+        scaleY = canvas.height / rect.height;                 //initialisierung für canvas click listener
 
+        canvas.addEventListener("click", pathclicklisterner); //click listener für canvas
 
-        canvas.addEventListener("click", pathclicklisterner);
-        //canvas.addEventListener("mousemove", pathmouseoverlisterner); //path listener für auswahl
         canvas.addEventListener("mousemove", setmouseposition); //oeffne bei der Mausbewegung irgendwo im auf der Seite die handlemousemove funktion
 
-
-
-        //requestAnimationFrame(update());
     }
     function buyItem(_event: Event): void {
-        console.log((_event.target as Element).id.slice(3));            //buy von elemnt id entfernen
         itemShop.buy((_event.target as Element).id.slice(3));
     }
     function initslider(): void {
         for (let i: number = 0; i < allitems.length; i++) {
-
             item[i] = {
                 itemname: allitems[i],
                 minprice: 0,
@@ -136,9 +117,8 @@ namespace Gemuesegarten {
         beeslabel.innerHTML = "Bienen: " + beeAmount.value;
         beenumber = Number(beeAmount.value);
         gemamount = Number(gemAmount.value);
-
-
     }
+    
     function startGame(_event: Event): void {             //start des spieles
         
         let startScreen: HTMLDivElement = <HTMLDivElement>document.body.querySelector("#menu");       //definiere das slider menü
@@ -173,10 +153,9 @@ namespace Gemuesegarten {
         for (let i: number = 0; i < allitems.length; i++) {
             if (name == allitems[i]) {
                 let label: HTMLParagraphElement = <HTMLParagraphElement>document.body.querySelector("#" + name + "Label");
-                //document.getElementById(name + "Label").innerHTML = name;
+
                 item[i].maxprice = Number(nowAmount);
                 item[i].minprice = Number(minAmount);
-
 
                 if (item[i].buy == false) {
                     label.innerHTML = item[i].germanName + " Gewinn: " + minAmount + "/" + nowAmount + "/" + maxAmount;
@@ -184,9 +163,8 @@ namespace Gemuesegarten {
                 if (item[i].buy == true) {
                     label.innerHTML = item[i].germanName + " kosten: " + minAmount + "/" + nowAmount + "/" + maxAmount;
                 }
-                //console.log(item[0].itemname);
-                //console.log(amount);
             }
+
             if (name == "startgems") {
                 let label: HTMLParagraphElement = <HTMLParagraphElement>document.body.querySelector("#" + name + "Label");
                 gemamount = Number(nowAmount);
@@ -222,12 +200,7 @@ namespace Gemuesegarten {
 
         for (let index: number = 0; index < block.length; index++) {
 
-            let progresbarWater: HTMLProgressElement = <HTMLProgressElement>document.querySelector("#prog-bar-water");
-            let progresbarFertilizer: HTMLProgressElement = <HTMLProgressElement>document.querySelector("#prog-bar-fertilizer");
-            progresbarWater.max = 100;
-            progresbarFertilizer.max = 100;
-            progresbarWater.value = getPercentage(block[selectedblock].waterlevel[1], block[selectedblock].waterlevel[0], block[selectedblock].waterlevel[2]);
-            progresbarFertilizer.value = getPercentage(block[selectedblock].fertilizerlevel[1], block[selectedblock].fertilizerlevel[0], block[selectedblock].fertilizerlevel[2]);
+            setprogressbar();
 
             if (block[index].kill == true) {                                                            //Zerstörung des Blockes -> weitere in Block.ts
                 block[index] = new Block(block[index].position, block[index].blocknumber);              //ersetze zerstörten block 
@@ -257,6 +230,14 @@ namespace Gemuesegarten {
             }
         }
 
+    }
+    function setprogressbar(): void {
+        let progresbarWater: HTMLProgressElement = <HTMLProgressElement>document.querySelector("#prog-bar-water");           //dekleration der Progress bar
+        let progresbarFertilizer: HTMLProgressElement = <HTMLProgressElement>document.querySelector("#prog-bar-fertilizer"); //dekleration der Progressbar vom Wasser
+        progresbarWater.max = 100;
+        progresbarFertilizer.max = 100;
+        progresbarWater.value = getPercentage(block[selectedblock].waterlevel[1], block[selectedblock].waterlevel[0], block[selectedblock].waterlevel[2]);
+        progresbarFertilizer.value = getPercentage(block[selectedblock].fertilizerlevel[1], block[selectedblock].fertilizerlevel[0], block[selectedblock].fertilizerlevel[2]);
     }
 
     function setmouseposition(_event: MouseEvent): void {
