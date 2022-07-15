@@ -2,6 +2,7 @@
 var Gemuesegarten;
 (function (Gemuesegarten) {
     window.addEventListener("load", hndLoad);
+    let mousepositon;
     let rect;
     let scaleX;
     let scaleY;
@@ -10,6 +11,7 @@ var Gemuesegarten;
     let block = [];
     let bee = [];
     let beenumber = 4;
+    //data for shop 
     let itemShop;
     let item = [];
     let gemamount;
@@ -29,9 +31,8 @@ var Gemuesegarten;
             }
             startpositon.add(positondown); //Addiere Startposition in die zweite Reihe
         }
-        Gemuesegarten.mousepositon = new Gemuesegarten.Vector(0, 0);
+        mousepositon = new Gemuesegarten.Vector(0, 0);
         let canvas = document.querySelector("#canvas");
-        //let startgame: HTMLButtonElement = <HTMLButtonElement>document.querySelector("#startgame");
         let startgame = document.querySelector("button#start");
         let tool = document.querySelector("div#shop");
         let slider = document.querySelector("div#menu");
@@ -40,22 +41,17 @@ var Gemuesegarten;
             shopbutton[i] = document.querySelector("button#buy" + allitems[i]);
             shopbutton[i].addEventListener("click", buyItem);
         }
-        //shopbuttonf.addEventListener("click", buyItem);
-        //shopbutton[0] = new HTMLButtonElement();
         tool.addEventListener("change", handleChange);
         slider.addEventListener("input", handleslider);
         startgame.addEventListener("click", startGame);
         Gemuesegarten.ctx = canvas.getContext("2d");
-        rect = canvas.getBoundingClientRect();
-        scaleX = canvas.width / rect.width; //for canvas click listener
-        scaleY = canvas.height / rect.height; //for canvas click listener
-        canvas.addEventListener("click", pathclicklisterner);
-        //canvas.addEventListener("mousemove", pathmouseoverlisterner); //path listener für auswahl
+        rect = canvas.getBoundingClientRect(); //initialisierung für canvas click listener
+        scaleX = canvas.width / rect.width; //initialisierung für canvas click listener
+        scaleY = canvas.height / rect.height; //initialisierung für canvas click listener
+        canvas.addEventListener("click", pathclicklisterner); //click listener für canvas
         canvas.addEventListener("mousemove", setmouseposition); //oeffne bei der Mausbewegung irgendwo im auf der Seite die handlemousemove funktion
-        //requestAnimationFrame(update());
     }
     function buyItem(_event) {
-        console.log(_event.target.id.slice(3)); //buy von elemnt id entfernen
         itemShop.buy(_event.target.id.slice(3));
     }
     function initslider() {
@@ -119,7 +115,6 @@ var Gemuesegarten;
         for (let i = 0; i < allitems.length; i++) {
             if (name == allitems[i]) {
                 let label = document.body.querySelector("#" + name + "Label");
-                //document.getElementById(name + "Label").innerHTML = name;
                 item[i].maxprice = Number(nowAmount);
                 item[i].minprice = Number(minAmount);
                 if (item[i].buy == false) {
@@ -128,8 +123,6 @@ var Gemuesegarten;
                 if (item[i].buy == true) {
                     label.innerHTML = item[i].germanName + " kosten: " + minAmount + "/" + nowAmount + "/" + maxAmount;
                 }
-                //console.log(item[0].itemname);
-                //console.log(amount);
             }
             if (name == "startgems") {
                 let label = document.body.querySelector("#" + name + "Label");
@@ -158,12 +151,7 @@ var Gemuesegarten;
         Gemuesegarten.ctx.fillRect(0, 0, canvas.width, canvas.height);
         Gemuesegarten.ctx.fill();
         for (let index = 0; index < block.length; index++) {
-            let progresbarWater = document.querySelector("#prog-bar-water");
-            let progresbarFertilizer = document.querySelector("#prog-bar-fertilizer");
-            progresbarWater.max = 100;
-            progresbarFertilizer.max = 100;
-            progresbarWater.value = getPercentage(block[selectedblock].waterlevel[1], block[selectedblock].waterlevel[0], block[selectedblock].waterlevel[2]);
-            progresbarFertilizer.value = getPercentage(block[selectedblock].fertilizerlevel[1], block[selectedblock].fertilizerlevel[0], block[selectedblock].fertilizerlevel[2]);
+            setprogressbar();
             if (block[index].kill == true) { //Zerstörung des Blockes -> weitere in Block.ts
                 block[index] = new Gemuesegarten.Block(block[index].position, block[index].blocknumber); //ersetze zerstörten block 
             }
@@ -185,15 +173,23 @@ var Gemuesegarten;
     }
     function pathclicklisterner(_event) {
         for (let index = 0; index < block.length; index++) { //instanzierung
-            if (Gemuesegarten.ctx.isPointInPath(block[index].path, Gemuesegarten.mousepositon.x, Gemuesegarten.mousepositon.y)) { //wenn innerhalb eines Pfades gedrückt wurde
+            if (Gemuesegarten.ctx.isPointInPath(block[index].path, mousepositon.x, mousepositon.y)) { //wenn innerhalb eines Pfades gedrückt wurde
                 block[index].doClick(tool, itemShop); //dann Führe eine Aktion mit auf dem dementsprechenden Block mit jeweiligem ausgewähltem Werkzeug durch
             }
         }
     }
+    function setprogressbar() {
+        let progresbarWater = document.querySelector("#prog-bar-water"); //dekleration der Progress bar
+        let progresbarFertilizer = document.querySelector("#prog-bar-fertilizer"); //dekleration der Progressbar vom Wasser
+        progresbarWater.max = 100;
+        progresbarFertilizer.max = 100;
+        progresbarWater.value = getPercentage(block[selectedblock].waterlevel[1], block[selectedblock].waterlevel[0], block[selectedblock].waterlevel[2]);
+        progresbarFertilizer.value = getPercentage(block[selectedblock].fertilizerlevel[1], block[selectedblock].fertilizerlevel[0], block[selectedblock].fertilizerlevel[2]);
+    }
     function setmouseposition(_event) {
         let position = document.querySelector("span"); //deklariere das span
-        Gemuesegarten.mousepositon.x = (_event.clientX - rect.left) * scaleX; //deklariere die X position mit der eventfunktion der Maus
-        Gemuesegarten.mousepositon.y = (_event.clientY - rect.top) * scaleY; //deklariere die y position mit der eventfunktion der Maus
+        mousepositon.x = (_event.clientX - rect.left) * scaleX; //deklariere die X position mit der eventfunktion der Maus
+        mousepositon.y = (_event.clientY - rect.top) * scaleY; //deklariere die y position mit der eventfunktion der Maus
         for (let index = 0; index < block.length; index++) { //Feld makierung anzeigen  <-- bekomme gleich einen Kotzanfall wenn die scheise jetzt dann nicht funktioniert gut habs dirty gelöst
             if (Gemuesegarten.ctx.isPointInPath(block[index].path, _event.clientX, _event.clientY)) { //wenn Mausposition auf dementsprechenden Feld ist
                 position.style.left = (_event.clientX + 30) + "px"; //aendere die Position des span (x) neben der Maus
@@ -225,135 +221,168 @@ var Gemuesegarten;
         STATUS[STATUS["READY"] = 4] = "READY";
     })(STATUS = Gemuesegarten.STATUS || (Gemuesegarten.STATUS = {}));
     class Block {
-        blockinfo;
-        imgBlock = new Image();
-        path = new Path2D();
-        hover = false;
-        blocknumber;
+        hover = false; //hoverzustand des Blocks
+        blocknumber; //Block nummer für auswertung
+        position; //Position des Blocks
+        path = new Path2D(); //klickbarer Pfad des Blocks
         waterlevel = [-100, -100, 400]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
         fertilizerlevel = [-100, -100, 500]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
         pestlevel;
-        position;
-        plant;
+        kill; //block zerstören aktiv
+        sell = false; //Pflanze verkaufbar
+        status; //Status des Blocks
+        mobspawner = false; //Mob spawner an falls sich Biene in Pflanze befindet
+        mobspawntime = 250; //zeit bis mob spawnt
         mobspawn;
-        mobspawntime = 250;
-        mobspawner = false;
-        kill;
-        sell = false;
-        status;
+        plant; //Pflanze die später gekapselt wird
+        imgBlock = new Image(); //Bildquelle für Block
         constructor(_position, _blocknumber) {
             this.mobspawn = this.mobspawntime;
             this.status = STATUS.DEFAULT;
             this.blocknumber = _blocknumber;
             this.position = _position;
-            //canvas.addEventListener("click", this.pathclicklisterner);
             this.imgBlock.src = "img/Grasblock.webp";
             this.drawPath();
         }
-        newBee() {
-            this.plant.bee.push(new Gemuesegarten.Mob(new Gemuesegarten.Vector(this.position.x, this.position.y), "block"));
-            //this.mobspawner = true;
-            console.log("test");
-        }
-        killBee() {
-            this.plant.bee.pop(); // letztes mob aus pflanze löschen
-            if (this.plant.bee.length == 0) {
-                this.mobspawner = false; //ausschalten der mobspawner Block
-                this.mobspawn = this.mobspawntime; //Reset der Spawnzeit für neue Biene
+        update() {
+            Gemuesegarten.ctx.drawImage(this.imgBlock, this.position.x, this.position.y); //male Block
+            if (this.hover == true) { //wenn gehovert wurde setze Transparenz auf 50%
+                Gemuesegarten.ctx.fillStyle = "#ff000050";
+                Gemuesegarten.ctx.fill(this.path);
+            }
+            if (this.hover == false) { //wenn nicht gehovert wurde setze Transparenz auf 0%
+                Gemuesegarten.ctx.fillStyle = "#ff000000";
+                Gemuesegarten.ctx.fill(this.path);
+            }
+            /**********************/
+            /**ENUM STATUS EVENTS**/
+            /**********************/
+            switch (this.status) {
+                case STATUS.GROW: /** Status GROW **/
+                    this.waterlevel[1]--; //dezimieren aktuelles Wasserlevel
+                    this.fertilizerlevel[1]--; //dezimieren aktuelles Düngerlevel
+                    this.plant.draw(); //zeichne Pflanze
+                    this.plant.update(); //update die Pflanze
+                    this.updatePests(); //akualisiere den Mobspawner
+                    //water events
+                    if (this.waterlevel[1] < this.waterlevel[0]) { //setze den Blockstatus auf zerstören wenn Block unterwässert ist
+                        this.kill = true;
+                    }
+                    if (this.waterlevel[1] > this.waterlevel[2]) { //setze den Blockstatus auf zerstören wenn Block überrwässert ist
+                        this.kill = true;
+                    }
+                    if (this.waterlevel[1] <= 0) { //ändere Bild wenn pflanze kurz vor der unterwässerung steht
+                        this.imgBlock.src = "img/Ackerboden_1.webp";
+                    }
+                    if (this.waterlevel[1] >= 0) { //ändere Bild wenn pflanze genug wasser hat
+                        this.imgBlock.src = "img/Ackerboden_2.webp";
+                    }
+                    //fertilizer events
+                    if (this.fertilizerlevel[1] < this.fertilizerlevel[0]) { //setze den Blockstatus auf zerstören wenn Block unterdüngt ist
+                        this.kill = true;
+                    }
+                    if (this.fertilizerlevel[1] > this.fertilizerlevel[2]) { //setze den Blockstatus auf zerstören wenn Block unterdüngt ist
+                        this.kill = true;
+                    }
+                    if (this.plant.grown == true) { //Wenn die Pflanze gewachsen ist setze den Status auf Ready
+                        this.status = STATUS.READY;
+                    }
+                    break;
+                case STATUS.READY:
+                    this.updatePests();
+                    this.plant.draw();
+                    if (this.plant.bee.length > 0) { //wenn Bienen auf der Pflanze sind kann der Block nicht verkauft werden
+                        this.sell = false;
+                    }
+                    else {
+                        this.sell = true;
+                    }
+                    break;
             }
         }
         doClick(_tool, _itemshop) {
-            //let itemShop: Shop = _itemshop;
-            let tool = _tool;
+            /*********************/
+            /**ENUM CLICK EVENTS**/
+            /*********************/
             switch (this.status) {
+                /*Startdüngen*/
                 case STATUS.DEFAULT:
-                    if (tool == "fertilizer" && (_itemshop.item[5].amount > 0)) {
-                        _itemshop.item[5].amount--;
-                        _itemshop.updateUI();
-                        console.log();
-                        this.imgBlock.src = "img/Ackerboden_1.webp";
-                        this.fertilizerlevel[1] = this.fertilizerlevel[2] - 100;
-                        this.status = STATUS.FERTILIZED;
-                    }
-                    else {
-                        console.log("erst Düngen");
+                    if (_tool == "fertilizer" && (_itemshop.item[5].amount > 0)) { //wenn Werkzeug Dünger und gemügent vorhanden ist
+                        _itemshop.item[5].amount--; //verwende ein Dünger
+                        _itemshop.updateUI(); //und update den shop
+                        this.fertilizerlevel[1] = this.fertilizerlevel[2] - 100; //und setze einen Startwert für den Block
+                        this.imgBlock.src = "img/Ackerboden_1.webp"; //ändere die Blocktextur
+                        this.status = STATUS.FERTILIZED; //update in den nächsten Status
                     }
                     break;
+                /*Startwässern*/
                 case STATUS.FERTILIZED:
-                    if (tool == "water") {
-                        this.imgBlock.src = "img/Ackerboden_2.webp";
-                        this.waterlevel[1] = this.waterlevel[2] - 100;
-                        this.status = STATUS.WATERED;
-                    }
-                    else {
-                        console.log("erst Wässern dann kann gepflanzt werden");
+                    if (_tool == "water") { //wenn Werkzeug Wasser
+                        this.imgBlock.src = "img/Ackerboden_2.webp"; //update die Textur
+                        this.waterlevel[1] = this.waterlevel[2] - 100; //und setze einen Startwert für den Block
+                        this.status = STATUS.WATERED; //update in den nächsten Status
                     }
                     break;
+                /*anpflanzen*/
                 case STATUS.WATERED:
-                    if (tool == "pumpkinseed" && (_itemshop.item[9].amount > 0)) {
-                        _itemshop.item[9].amount--;
-                        _itemshop.updateUI();
-                        this.plant = new Gemuesegarten.Plant("pumpkinseed", this.position);
-                        this.status = STATUS.GROW;
+                    if (_tool == "pumpkinseed" && (_itemshop.item[9].amount > 0)) { //wenn Werkzeug Kürbis und genügent vorhanden ist
+                        _itemshop.item[9].amount--; //verwende ein Kürbiskern
+                        _itemshop.updateUI(); //und update den shop
+                        this.plant = new Gemuesegarten.Plant("pumpkinseed", this.position); //Kapsel die Pflanzen in den Block
+                        this.status = STATUS.GROW; //update für den nächsten Status
                     }
-                    if (tool == "carrotseed" && (_itemshop.item[11].amount > 0)) {
+                    if (_tool == "carrotseed" && (_itemshop.item[11].amount > 0)) {
                         _itemshop.item[11].amount--;
                         _itemshop.updateUI();
                         this.plant = new Gemuesegarten.Plant("carrotseed", this.position);
                         this.status = STATUS.GROW;
                     }
-                    if (tool == "potatoseed" && (_itemshop.item[10].amount > 0)) {
+                    if (_tool == "potatoseed" && (_itemshop.item[10].amount > 0)) {
                         _itemshop.item[10].amount--;
                         _itemshop.updateUI();
                         this.plant = new Gemuesegarten.Plant("potatoseed", this.position);
                         this.status = STATUS.GROW;
                     }
-                    if (tool == "beetrootseed" && (_itemshop.item[7].amount > 0)) {
+                    if (_tool == "beetrootseed" && (_itemshop.item[7].amount > 0)) {
                         _itemshop.item[7].amount--;
                         _itemshop.updateUI();
                         this.plant = new Gemuesegarten.Plant("beetrootseed", this.position);
                         this.status = STATUS.GROW;
                     }
-                    if (tool == "wheatseed" && (_itemshop.item[8].amount > 0)) {
+                    if (_tool == "wheatseed" && (_itemshop.item[8].amount > 0)) {
                         _itemshop.item[8].amount--;
                         _itemshop.updateUI();
                         this.plant = new Gemuesegarten.Plant("wheatseed", this.position);
                         this.status = STATUS.GROW;
                     }
-                    else {
-                        console.log("erst Wässern dann kann ");
-                    }
                     break;
                 case STATUS.GROW:
-                    if (tool == "water") {
+                    if (_tool == "water") { //update das Wasserlevel des blocks mit 100
                         this.waterlevel[1] += 100;
                     }
-                    if (tool == "fertilizer" && (_itemshop.item[5].amount > 0)) {
+                    if (_tool == "fertilizer" && (_itemshop.item[5].amount > 0)) { //update das Düngerlevel des blocks mit 100
                         _itemshop.item[5].amount--;
                         _itemshop.updateUI();
                         this.fertilizerlevel[1] += 100;
                     }
-                    if (tool == "pesticide" && (_itemshop.item[6].amount > 0)) {
-                        _itemshop.item[6].amount--;
-                        _itemshop.updateUI();
-                        this.killBee();
+                    if (_tool == "pesticide" && (_itemshop.item[6].amount > 0) && (this.plant.bee.length > 0)) { //wenn das Werkzeug Pestizide ist, mehr als 1 biene im Feld ist und genügent Pestizide vorhanden sind
+                        _itemshop.item[6].amount--; //update die anzahl der Pestizide im Inventar
+                        _itemshop.updateUI(); //update den Itemshop           
+                        this.killBee(); //und Töte eine Biene
                     }
                     break;
                 case STATUS.READY:
-                    if (tool == "pesticide" && (_itemshop.item[6].amount > 0)) {
+                    if (_tool == "pesticide" && (_itemshop.item[6].amount > 0) && (this.plant.bee.length > 0)) { //wenn das Werkzeug Pestizide ist, mehr als 1 biene im Feld ist und genügent Pestizide vorhanden sind
                         _itemshop.item[6].amount--;
-                        _itemshop.updateUI();
-                        this.killBee();
+                        _itemshop.updateUI(); //update den shop
+                        this.killBee(); //töte eine Biene
                     }
-                    if ((tool == "sell") && this.sell == true) {
-                        _itemshop.sell(this.plant.seed.substring(0, this.plant.seed.length - 4));
-                        this.kill = true;
+                    if ((_tool == "sell") && this.sell == true) { //wenn das Werkzeug ist verkaufen und keine Bienen auf dem feld sind
+                        _itemshop.sell(this.plant.seed.substring(0, this.plant.seed.length - 4)); //dann verkauf dieses Item
+                        this.kill = true; //und zerstöre den Block
                     }
                     break;
             }
-        }
-        getpath() {
-            return this.path;
         }
         setHover() {
             this.hover = true;
@@ -361,95 +390,31 @@ var Gemuesegarten;
         clearHover() {
             this.hover = false;
         }
-        /*pathclicklisterner(_event: MouseEvent): void {
-            if (ctx.isPointInPath(this.path, mousepositon.x, mousepositon.y)) {
-                console.log("Pfad wurde gedrückt");
-                console.log("test für pfad in ");
-            }
-    
-        }*/
-        update() {
-            //let position: HTMLElement = <HTMLElement>document.querySelector("span");                    //deklariere das span
-            //progresbar[0] = new HTMLProgressElement();
-            //2progresbar[1] = new HTMLProgressElement();
-            this.blockinfo = "water: " + this.waterlevel[1].toString() + " min: " + this.waterlevel[0].toString() + " max: " + this.waterlevel[2].toString() + "<br> fertilizer: " + this.fertilizerlevel[1].toString() + " min: " + this.fertilizerlevel[0].toString() + " max: " + this.fertilizerlevel[2].toString();
-            Gemuesegarten.ctx.drawImage(this.imgBlock, this.position.x, this.position.y);
-            if (this.hover == true) {
-                Gemuesegarten.ctx.fillStyle = "#ff000050";
-                Gemuesegarten.ctx.fill(this.path);
-                //this.drawPath();
-            }
-            if (this.hover == false) {
-                Gemuesegarten.ctx.fillStyle = "#ff000000";
-                Gemuesegarten.ctx.fill(this.path);
-                //this.drawPath();
-            }
-            switch (this.status) {
-                case STATUS.GROW:
-                    this.waterlevel[1]--;
-                    this.fertilizerlevel[1]--;
-                    this.plant.draw();
-                    this.plant.update();
-                    //water events
-                    if (this.waterlevel[1] < this.waterlevel[0]) {
-                        this.kill = true;
-                    }
-                    if (this.waterlevel[1] > this.waterlevel[2]) {
-                        this.kill = true;
-                    }
-                    if (this.waterlevel[1] <= 0) { //change image for image
-                        this.imgBlock.src = "img/Ackerboden_1.webp";
-                    }
-                    if (this.waterlevel[1] >= 0) {
-                        this.imgBlock.src = "img/Ackerboden_2.webp";
-                    }
-                    //fertilizer events
-                    if (this.fertilizerlevel[1] < this.waterlevel[0]) {
-                        this.kill = true;
-                    }
-                    if (this.fertilizerlevel[1] > this.fertilizerlevel[2]) {
-                        this.kill = true;
-                    }
-                    //mob events
-                    this.updatePests();
-                    if (this.plant.grown == true) {
-                        this.status = STATUS.READY;
-                    }
-                    break;
-                case STATUS.READY:
-                    if (this.plant.bee.length > 0) {
-                        this.sell = false;
-                    }
-                    else {
-                        this.sell = true;
-                    }
-                    this.updatePests();
-                    console.log("Plant is Ready");
-                    this.plant.draw();
-                    break;
-            }
-        }
-        updatePests() {
-            if (this.plant.bee.length > 2) {
-                this.kill = true;
-            }
-            if (this.mobspawner == true) {
-                this.mobspawn++;
-                if (this.mobspawn >= this.mobspawntime) {
-                    this.mobspawn = 0;
-                    this.newBee();
-                }
-            }
-        }
         drawPath() {
-            //ctx.drawImage(this.imgBlock, 0, 0);
-            //ctx.beginPath();
             this.path.moveTo(16 + this.position.x, 67 + this.position.y);
             this.path.lineTo(150 + this.position.x, 0 + this.position.y);
             this.path.lineTo(284 + this.position.x, 67 + this.position.y);
             this.path.lineTo(150 + this.position.x, 2 * 67 + this.position.y);
             this.path.closePath();
-            //ctx.stroke();
+        }
+        updatePests() {
+            if (this.plant.bee.length > 2) { //wenn mehr als 2 bzw 3 Bienen im Feld sind zerstöre den Block
+                this.kill = true;
+            }
+            if (this.mobspawner == true) { //wenn der mobspawner an ist 
+                this.mobspawn++;
+                if (this.mobspawn >= this.mobspawntime) { //
+                    this.mobspawn = 0;
+                    this.plant.bee.push(new Gemuesegarten.Mob(new Gemuesegarten.Vector(this.position.x, this.position.y), "block")); //neue block Biene
+                }
+            }
+        }
+        killBee() {
+            this.plant.bee.pop(); //letztes Biene aus pflanze löschen
+            if (this.plant.bee.length == 0) { //wenn keine Bienen mehr drinn sind
+                this.mobspawner = false; //ausschalten des mobspawners
+                this.mobspawn = this.mobspawntime; //Reset der Spawnzeit für neue Biene
+            }
         }
     }
     Gemuesegarten.Block = Block;
@@ -464,71 +429,67 @@ var Gemuesegarten;
         DIRECTION[DIRECTION["DOWN"] = 3] = "DOWN";
     })(DIRECTION || (DIRECTION = {}));
     class Mob {
-        direction;
-        frame;
-        framedelay = 0;
         position;
+        direction;
         minpostion;
         maxpostion;
         imgMob = [];
         mobpath = [];
         mode;
+        frame;
         constructor(_position, _mode) {
             this.mode = _mode;
-            console.log(this.mode);
             this.frame = 0;
             this.position = _position;
             this.position.y -= 40;
-            //canvas.addEventListener("click", this.pathclicklisterner);
-            if (this.mode == "world") {
-                this.mobpath[0] = "img/bee/world/Bee_types_BE_";
-                this.minpostion = new Gemuesegarten.Vector(-40, -40);
-                this.maxpostion = new Gemuesegarten.Vector(1940, 1120);
+            if (this.mode == "world") { //weltbiene
+                this.mobpath[0] = "img/bee/world/Bee_types_BE_"; //pfad für Biene
+                this.minpostion = new Gemuesegarten.Vector(-40, -40); //größe des canvases - halbe Biene
+                this.maxpostion = new Gemuesegarten.Vector(1940, 1120); //größe des canvases + halbe Biene
             }
             if (this.mode == "block") {
-                this.mobpath[0] = "img/bee/block/Bee_types_BE_";
-                this.minpostion = new Gemuesegarten.Vector(_position.x + 50, _position.y);
-                this.maxpostion = new Gemuesegarten.Vector(_position.x + 300 - 50, _position.y + 300);
-                this.direction = DIRECTION.RIGHT;
+                this.mobpath[0] = "img/bee/block/Bee_types_BE_"; //pfad start
+                this.minpostion = new Gemuesegarten.Vector(_position.x + 50, _position.y); //minimale grenzen wo die Biene Fliegt
+                this.maxpostion = new Gemuesegarten.Vector(_position.x + 300 - 50, _position.y + 300); //maximale grenze wo die Biene Fliegt
+                this.direction = DIRECTION.RIGHT; //ändere Richtung
             }
-            this.mobpath[1] = ".png";
-            for (let i = 0; i <= 8; i++) {
+            this.mobpath[1] = ".png"; //Pfad ende
+            for (let i = 0; i <= 8; i++) { //preload für Bilder der der Biene
                 this.imgMob[i] = new Image();
                 this.imgMob[i].src = this.mobpath[0] + i + this.mobpath[1];
             }
         }
         update() {
-            this.frame++;
-            //this.imgMob.src = this.mobpath[0] + this.frame + this.mobpath[1];
-            Gemuesegarten.ctx.drawImage(this.imgMob[this.frame], this.position.x - 40, this.position.y - 40);
-            if (this.frame == 8) {
+            this.frame++; //add ne frame
+            Gemuesegarten.ctx.drawImage(this.imgMob[this.frame], this.position.x - 40, this.position.y - 40); //male Biene
+            if (this.frame == 8) { //reset zu frame 0
                 this.frame = 0;
             }
-            if (this.mode == "world") {
-                this.position.x += 4;
-                this.position.y += 4;
-                if (this.position.y >= this.maxpostion.y) {
-                    this.position.y = this.minpostion.y;
+            if (this.mode == "world") { //wenn es eine Weltbiene ist
+                this.position.x += 4; //geschwindigkeit in x richtung
+                this.position.y += 4; //geschwindigkeit in y richtung
+                if (this.position.y >= this.maxpostion.y) { //wenn die maximale canvas höhe erreicht wurde
+                    this.position.y = this.minpostion.y; //setze die Höhe wieder auf die minimalste
                 }
-                if (this.position.x >= this.maxpostion.x) {
-                    this.position.x = this.minpostion.x;
+                if (this.position.x >= this.maxpostion.x) { //wenn die maximale canvas breite erreicht wurde
+                    this.position.x = this.minpostion.x; //setze die breite wieder auf die minimalste
                 }
             }
-            if (this.mode == "block") {
-                if (this.direction == DIRECTION.RIGHT) {
-                    if (this.position.x >= this.maxpostion.x) {
-                        this.direction = DIRECTION.LEFT;
+            if (this.mode == "block") { //wenn es eine Blockbiene ist
+                if (this.direction == DIRECTION.RIGHT) { //und die Richtung Rechts ist
+                    if (this.position.x >= this.maxpostion.x) { //die maximale Position erreicht wurde
+                        this.direction = DIRECTION.LEFT; //ändere die Richtung nach Links
                     }
                     else {
-                        this.position.x += 4;
+                        this.position.x += 4; //ansonsten fliege weiter nach rechts
                     }
                 }
-                if (this.direction == DIRECTION.LEFT) {
-                    if (this.position.x <= this.minpostion.x) {
-                        this.direction = DIRECTION.RIGHT;
+                if (this.direction == DIRECTION.LEFT) { //wenn die Richtung Links ist
+                    if (this.position.x <= this.minpostion.x) { //und die minimalste Position erreicht wurde
+                        this.direction = DIRECTION.RIGHT; //ändere die Richtung nach Rechts
                     }
                     else {
-                        this.position.x -= 4;
+                        this.position.x -= 4; //ansonsten flieg weiter nach links
                     }
                 }
             }
@@ -606,11 +567,6 @@ var Gemuesegarten;
             if (this.growlvl == this.maxgrowlvl) {
                 this.grown = true;
             }
-            console.log(this.growtimecounter);
-            //console.log(this.maxgrowlvl);
-            //}
-            //else {
-            //console.log("plant is ready sir");
         }
     }
     Gemuesegarten.Plant = Plant;
@@ -618,26 +574,23 @@ var Gemuesegarten;
 var Gemuesegarten;
 (function (Gemuesegarten) {
     class Shop {
-        emaralamount;
-        imgeemarald = [];
-        timer = 30;
         item = [];
-        //allitems: string[] = ["potato", "wheat", "carrot", "beetroot", "pumpkin", "fertilizer", "pesticide" , "beetrootseed" , "wheatseed", "pumpkinseed", "potatoseed", "carrotseed" ];
-        //buy: boolean[] = [false, false, false, false, false, false, true, true, true, true, true, true];
+        timer = 30;
+        imgeemarald = [];
+        emaralamount;
         constructor(_emeralamount) {
             this.emaralamount = _emeralamount;
-            //this.randomprice();
             this.updateUI();
         }
         updateshop() {
+            let storetime = document.body.querySelector("#timer"); //definition des shop timers
             this.timer--;
-            if (this.timer <= -1) {
-                this.timer = 30;
-                this.randomprice();
-                this.updateUI();
+            if (this.timer <= -1) { //wenn der timer 0
+                this.timer = 30; //setze den shop timer wieder auf 30
+                this.randomprice(); //erstelle wieder neue random shop preise
+                this.updateUI(); //update die UI
             }
-            let storetime = document.body.querySelector("#timer");
-            storetime.innerHTML = this.timer.toString() + "s";
+            storetime.innerHTML = this.timer.toString() + "s"; //aktualisiere shopzeit im HTML
         }
         updateUI() {
             let emaraldLabel = document.body.querySelector("#emarals");
@@ -653,10 +606,8 @@ var Gemuesegarten;
             for (let i = 5; i < this.item.length; i++) {
                 let tool = document.body.querySelector("#" + this.item[i].itemname + "amount");
                 tool.innerHTML = this.item[i].amount.toString();
-                //tool.appendChild(this.imgeemarald[i]);
             }
-            //console.log(this.item[2].randomprice);
-            emaraldLabel.innerHTML = this.emaralamount.toString() + "x";
+            emaraldLabel.innerHTML = this.emaralamount.toString() + "x"; //verkette die emaralzahl mit x und aktualisier sie im shop
         }
         randomprice() {
             for (let i = 0; i < this.item.length; i++) {
@@ -675,33 +626,24 @@ var Gemuesegarten;
             }
         }
         buy(_name) {
-            let itemname = _name;
-            for (let i = 0; i < this.item.length; i++) {
-                if ((this.item[i].itemname == itemname + "seed") /* || (this.item[i].itemname == itemname)*/) {
-                    console.log(this.item.length);
-                    if (this.emaralamount - this.item[i].randomprice >= 0) {
-                        this.emaralamount -= this.item[i].randomprice;
-                        this.item[i].amount++;
-                        this.updateUI();
-                    }
-                }
-                //if ((this.item[i].itemname == "pesticide")  (this.item[i].itemname == "pesticide")
-            }
-            if ((itemname == "fertilizer")) {
-                console.log(this.item.length);
-                if (this.emaralamount - this.item[5].randomprice >= 0) {
-                    this.emaralamount -= this.item[5].randomprice;
-                    this.item[5].amount++;
-                    this.updateUI();
+            //let itemname: string = _name;
+            for (let i = 0; i < this.item.length; i++) { //frage alle seed items ab ob eines richtig 
+                if ((this.item[i].itemname == _name + "seed")) { //(kleine hilfe) verkette den itemnamen mit dem seed
+                    this.buyhelp(i); //öffne kaufhilfe (also ob es kaufbar ist)
                 }
             }
-            if ((itemname == "pesticide")) {
-                console.log(this.item.length);
-                if (this.emaralamount - this.item[6].randomprice >= 0) {
-                    this.emaralamount -= this.item[6].randomprice;
-                    this.item[6].amount++;
-                    this.updateUI();
-                }
+            if ((_name == "fertilizer")) { //wenn es Dünger ist 
+                this.buyhelp(5); //öffne kaufhilfe
+            }
+            if ((_name == "pesticide")) { //wenn es Pestiziede sind 
+                this.buyhelp(6); //öffne kaufhilfe
+            }
+        }
+        buyhelp(_number) {
+            if (this.emaralamount - this.item[_number].randomprice >= 0) {
+                this.emaralamount -= this.item[_number].randomprice;
+                this.item[_number].amount++;
+                this.updateUI();
             }
         }
     }

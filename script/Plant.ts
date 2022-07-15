@@ -96,12 +96,6 @@ namespace Gemuesegarten {
             if (this.growlvl == this.maxgrowlvl) {
                 this.grown = true;
             }
-            console.log(this.growtimecounter);
-            //console.log(this.maxgrowlvl);
-        //}
-        //else {
-
-        //console.log("plant is ready sir");
         }
 
     }

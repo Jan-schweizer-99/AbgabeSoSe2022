@@ -1,6 +1,5 @@
 declare namespace Gemuesegarten {
     let ctx: CanvasRenderingContext2D;
-    let mousepositon: Vector;
     function getPercentage(_now: number, _min: number, _max: number): number;
 }
 declare namespace Gemuesegarten {
@@ -12,55 +11,44 @@ declare namespace Gemuesegarten {
         READY = 4
     }
     class Block {
-        blockinfo: string;
-        imgBlock: HTMLImageElement;
-        path: Path2D;
         hover: boolean;
         blocknumber: number;
+        position: Vector;
+        path: Path2D;
         waterlevel: number[];
         fertilizerlevel: number[];
         pestlevel: number;
-        position: Vector;
-        plant: Plant;
-        mobspawn: number;
-        mobspawntime: number;
-        mobspawner: boolean;
         kill: Boolean;
         sell: Boolean;
         status: STATUS;
+        mobspawner: boolean;
+        private mobspawntime;
+        private mobspawn;
+        private plant;
+        private imgBlock;
         constructor(_position: Vector, _blocknumber: number);
-        newBee(): void;
-        killBee(): void;
+        update(): void;
         doClick(_tool: string, _itemshop: Shop): void;
-        getpath(): Path2D;
         setHover(): void;
         clearHover(): void;
-        update(): void;
-        updatePests(): void;
-        drawPath(): void;
+        private drawPath;
+        private updatePests;
+        private killBee;
     }
 }
 declare namespace Gemuesegarten {
-    enum DIRECTION {
-        LEFT = 0,
-        RIGHT = 1,
-        UP = 2,
-        DOWN = 3
-    }
-    export class Mob {
-        direction: DIRECTION;
-        frame: number;
-        framedelay: number;
+    class Mob {
         position: Vector;
-        minpostion: Vector;
-        maxpostion: Vector;
-        imgMob: HTMLImageElement[];
-        mobpath: string[];
-        mode: string;
+        private direction;
+        private minpostion;
+        private maxpostion;
+        private imgMob;
+        private mobpath;
+        private mode;
+        private frame;
         constructor(_position: Vector, _mode: string);
         update(): void;
     }
-    export {};
 }
 declare namespace Gemuesegarten {
     class Plant {
@@ -91,16 +79,17 @@ declare namespace Gemuesegarten {
         amount: number;
     }
     class Shop {
-        emaralamount: number;
-        imgeemarald: HTMLImageElement[];
-        timer: number;
         item: ITEM[];
+        private timer;
+        private imgeemarald;
+        private emaralamount;
         constructor(_emeralamount: number);
         updateshop(): void;
         updateUI(): void;
         randomprice(): void;
         sell(_name: string): void;
         buy(_name: string): void;
+        private buyhelp;
     }
 }
 declare namespace Gemuesegarten {
@@ -113,6 +102,4 @@ declare namespace Gemuesegarten {
         add(_addend: Vector): void;
         copy(): Vector;
     }
-}
-declare namespace Gemuesegarten {
 }

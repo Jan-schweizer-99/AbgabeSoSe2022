@@ -9,28 +9,33 @@ namespace Gemuesegarten {
     export class Block {
 
 
-        blockinfo: string;
-        imgBlock: HTMLImageElement = new Image();
-        public path: Path2D = new Path2D();
-        public hover: boolean = false;
 
-        public blocknumber: number;
-        waterlevel: number[] = [-100, -100, 400]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
-        fertilizerlevel: number[] = [-100, -100, 500]; //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
-        pestlevel: number;
 
-        position: Vector;
-        plant: Plant;
+        public hover: boolean = false;              //hoverzustand des Blocks
 
-        mobspawn: number;
-        mobspawntime: number = 250;
-        mobspawner: boolean = false;
+        public blocknumber: number;                 //Block nummer für auswertung
+        public position: Vector;                    //Position des Blocks
 
-        public kill: Boolean;
-        public sell: Boolean = false;
+        public path: Path2D = new Path2D();         //klickbarer Pfad des Blocks
 
-        public status: STATUS;
+        public waterlevel: number[] = [-100, -100, 400];        //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
+        public fertilizerlevel: number[] = [-100, -100, 500];   //Wert 1 minimales Wasserlevel //Wert 2 derzeitiges Wasserlevel // Wert 3 maximales Wasserlevel
+        public pestlevel: number;
 
+        public kill: Boolean;               //block zerstören aktiv
+        public sell: Boolean = false;       //Pflanze verkaufbar
+
+        public status: STATUS;              //Status des Blocks
+
+        public mobspawner: boolean = false; //Mob spawner an falls sich Biene in Pflanze befindet
+
+        private mobspawntime: number = 250; //zeit bis mob spawnt
+        private mobspawn: number;
+
+        private plant: Plant;               //Pflanze die später gekapselt wird
+
+
+        private imgBlock: HTMLImageElement = new Image();   //Bildquelle für Block
 
 
 
@@ -41,242 +46,260 @@ namespace Gemuesegarten {
             this.status = STATUS.DEFAULT;
             this.blocknumber = _blocknumber;
             this.position = _position;
-            //canvas.addEventListener("click", this.pathclicklisterner);
             this.imgBlock.src = "img/Grasblock.webp";
             this.drawPath();
         }
-        newBee(): void {
-            this.plant.bee.push(new Mob(new Vector(this.position.x, this.position.y), "block"));
-            //this.mobspawner = true;
-            console.log("test");
-        }
-        killBee(): void {
-            this.plant.bee.pop();               // letztes mob aus pflanze löschen
-            if (this.plant.bee.length == 0) {
-                this.mobspawner = false;               //ausschalten der mobspawner Block
-                this.mobspawn = this.mobspawntime; //Reset der Spawnzeit für neue Biene
-            }
-        }
-        public doClick(_tool: string, _itemshop: Shop): void {
-            //let itemShop: Shop = _itemshop;
-            let tool: string = _tool;
-            switch (this.status) {
-                case STATUS.DEFAULT:
-                    if (tool == "fertilizer" && (_itemshop.item[5].amount > 0)) {
-                        _itemshop.item[5].amount--;
-                        _itemshop.updateUI();
-                        console.log();
-                        this.imgBlock.src = "img/Ackerboden_1.webp";
-                        this.fertilizerlevel[1] = this.fertilizerlevel[2] - 100;
-                        this.status = STATUS.FERTILIZED;
-                    }
-                    else {
-                        console.log("erst Düngen");
-                    }
-                    break;
-                case STATUS.FERTILIZED:
-                    if (tool == "water") {
-                        this.imgBlock.src = "img/Ackerboden_2.webp";
-                        this.waterlevel[1] = this.waterlevel[2] - 100;
-                        this.status = STATUS.WATERED;
-                    }
-                    else {
-                        console.log("erst Wässern dann kann gepflanzt werden");
-                    }
-                    break;
-                case STATUS.WATERED:
-                    if (tool == "pumpkinseed" && (_itemshop.item[9].amount > 0)) {
-                        _itemshop.item[9].amount--;
-                        _itemshop.updateUI();
-                        this.plant = new Plant("pumpkinseed", this.position);
-                        this.status = STATUS.GROW;
-                    }
-                    if (tool == "carrotseed" && (_itemshop.item[11].amount > 0)) {
-                        _itemshop.item[11].amount--;
-                        _itemshop.updateUI();
-                        this.plant = new Plant("carrotseed", this.position);
-                        this.status = STATUS.GROW;
-                    }
-                    if (tool == "potatoseed" && (_itemshop.item[10].amount > 0)) {
-                        _itemshop.item[10].amount--;
-                        _itemshop.updateUI();
-                        this.plant = new Plant("potatoseed", this.position);
-                        this.status = STATUS.GROW;
-                    }
-                    if (tool == "beetrootseed" && (_itemshop.item[7].amount > 0)) {
-                        _itemshop.item[7].amount--;
-                        _itemshop.updateUI();
-                        this.plant = new Plant("beetrootseed", this.position);
-                        this.status = STATUS.GROW;
-                    }
-                    if (tool == "wheatseed" && (_itemshop.item[8].amount > 0)) {
-                        _itemshop.item[8].amount--;
-                        _itemshop.updateUI();
-                        this.plant = new Plant("wheatseed", this.position);
-                        this.status = STATUS.GROW;
-                    }
-                    else {
-                        console.log("erst Wässern dann kann ");
-                    }
-                    break;
-                case STATUS.GROW:
-                    if (tool == "water") {
-                        this.waterlevel[1] +=  100;
-                    }
-                    if (tool == "fertilizer" && (_itemshop.item[5].amount > 0)) {
-                        _itemshop.item[5].amount--;
-                        _itemshop.updateUI();
-                        this.fertilizerlevel[1] += 100;
-                    }
-                    if (tool == "pesticide" && (_itemshop.item[6].amount > 0)) {
-                        _itemshop.item[6].amount--;
-                        _itemshop.updateUI();
-                        this.killBee();
-                    }
-                    break;
-                case STATUS.READY:
-                    if (tool == "pesticide" && (_itemshop.item[6].amount > 0)) {
-                        _itemshop.item[6].amount--;
-                        _itemshop.updateUI();
-                        this.killBee();
-                    }
-                    if ((tool == "sell") && this.sell == true) {
 
-                        _itemshop.sell(this.plant.seed.substring(0, this.plant.seed.length - 4));
-                        this.kill = true;
-                    }
-                    break;
+        public update(): void {
 
-            }
+            ctx.drawImage(this.imgBlock, this.position.x, this.position.y);     //male Block
 
-
-
-        }
-
-        getpath(): Path2D {
-            return this.path;
-        }
-        setHover(): void {
-            this.hover = true;
-        }
-        clearHover(): void {
-            this.hover = false;
-        }
-
-        /*pathclicklisterner(_event: MouseEvent): void {
-            if (ctx.isPointInPath(this.path, mousepositon.x, mousepositon.y)) {
-                console.log("Pfad wurde gedrückt");
-                console.log("test für pfad in ");
-            }
-    
-        }*/
-        update(): void {
-            //let position: HTMLElement = <HTMLElement>document.querySelector("span");                    //deklariere das span
-
-            //progresbar[0] = new HTMLProgressElement();
-            //2progresbar[1] = new HTMLProgressElement();
-            
-
-
-            this.blockinfo = "water: " + this.waterlevel[1].toString() + " min: " + this.waterlevel[0].toString() + " max: " + this.waterlevel[2].toString() + "<br> fertilizer: " + this.fertilizerlevel[1].toString() + " min: " + this.fertilizerlevel[0].toString() + " max: " + this.fertilizerlevel[2].toString();
-            ctx.drawImage(this.imgBlock, this.position.x, this.position.y);
-            if (this.hover == true) {
+            if (this.hover == true) {                                           //wenn gehovert wurde setze Transparenz auf 50%
                 ctx.fillStyle = "#ff000050";
                 ctx.fill(this.path);
-
-                //this.drawPath();
             }
-            if (this.hover == false) {
+            if (this.hover == false) {                                          //wenn nicht gehovert wurde setze Transparenz auf 0%
                 ctx.fillStyle = "#ff000000";
                 ctx.fill(this.path);
-
-                //this.drawPath();
             }
 
-            switch (this.status) {
-                case STATUS.GROW:
-                    this.waterlevel[1]--;
-                    this.fertilizerlevel[1]--;
+            /**********************/
+            /**ENUM STATUS EVENTS**/
+            /**********************/
 
-                    this.plant.draw();
-                    this.plant.update();
+            switch (this.status) {
+                case STATUS.GROW:                /** Status GROW **/
+
+                    this.waterlevel[1]--;       //dezimieren aktuelles Wasserlevel
+                    this.fertilizerlevel[1]--;  //dezimieren aktuelles Düngerlevel
+
+                    this.plant.draw();          //zeichne Pflanze
+                    this.plant.update();        //update die Pflanze
+                    this.updatePests();         //akualisiere den Mobspawner
 
                     //water events
 
-                    if (this.waterlevel[1] < this.waterlevel[0]) {
-                        this.kill = true;
-
-                    }
-                    if (this.waterlevel[1] > this.waterlevel[2]) {
+                    if (this.waterlevel[1] < this.waterlevel[0]) {      //setze den Blockstatus auf zerstören wenn Block unterwässert ist
                         this.kill = true;
                     }
 
-                    if (this.waterlevel[1] <= 0) {                      //change image for image
+                    if (this.waterlevel[1] > this.waterlevel[2]) {      //setze den Blockstatus auf zerstören wenn Block überrwässert ist
+                        this.kill = true;
+                    }
+
+                    if (this.waterlevel[1] <= 0) {                      //ändere Bild wenn pflanze kurz vor der unterwässerung steht
                         this.imgBlock.src = "img/Ackerboden_1.webp";
                     }
-                    if (this.waterlevel[1] >= 0) {
+                    if (this.waterlevel[1] >= 0) {                      //ändere Bild wenn pflanze genug wasser hat
                         this.imgBlock.src = "img/Ackerboden_2.webp";
                     }
 
                     //fertilizer events
 
-                    if (this.fertilizerlevel[1] < this.waterlevel[0]) {
-                        this.kill = true;
 
-                    }
-                    if (this.fertilizerlevel[1] > this.fertilizerlevel[2]) {
+                    if (this.fertilizerlevel[1] < this.fertilizerlevel[0]) {  //setze den Blockstatus auf zerstören wenn Block unterdüngt ist
                         this.kill = true;
                     }
+                    if (this.fertilizerlevel[1] > this.fertilizerlevel[2]) { //setze den Blockstatus auf zerstören wenn Block unterdüngt ist
+                        this.kill = true;
+                    }
 
-                    //mob events
 
 
-                    this.updatePests();
-                    if (this.plant.grown == true) {
+                    if (this.plant.grown == true) {       //Wenn die Pflanze gewachsen ist setze den Status auf Ready
                         this.status = STATUS.READY;
                     }
+
+
                     break;
                 case STATUS.READY:
-                    if (this.plant.bee.length > 0) {
+
+                    this.updatePests();
+                    this.plant.draw();
+
+                    if (this.plant.bee.length > 0) {    //wenn Bienen auf der Pflanze sind kann der Block nicht verkauft werden
                         this.sell = false;
                     }
                     else {
                         this.sell = true;
                     }
-                    this.updatePests();
-                    console.log("Plant is Ready");
-                    this.plant.draw();
+
                     break;
             }
-
-
         }
-        updatePests(): void {
 
-            if (this.plant.bee.length > 2) {
-                this.kill = true;
 
-            }
-            if (this.mobspawner == true) {
-                this.mobspawn++;
-                if (this.mobspawn >= this.mobspawntime) {
-                    this.mobspawn = 0;
-                    this.newBee();
-                }
+        public doClick(_tool: string, _itemshop: Shop): void {
+
+            /*********************/
+            /**ENUM CLICK EVENTS**/
+            /*********************/
+
+
+            switch (this.status) {
+
+                /*Startdüngen*/
+
+                case STATUS.DEFAULT:
+                    if (_tool == "fertilizer" && (_itemshop.item[5].amount > 0)) {  //wenn Werkzeug Dünger und gemügent vorhanden ist
+
+                        _itemshop.item[5].amount--;                                 //verwende ein Dünger
+                        _itemshop.updateUI();                                       //und update den shop
+
+                        this.fertilizerlevel[1] = this.fertilizerlevel[2] - 100;    //und setze einen Startwert für den Block
+
+                        this.imgBlock.src = "img/Ackerboden_1.webp";                //ändere die Blocktextur
+
+                        this.status = STATUS.FERTILIZED;                            //update in den nächsten Status
+                    }
+                    break;
+
+                /*Startwässern*/
+
+                case STATUS.FERTILIZED:
+                    if (_tool == "water") {                                         //wenn Werkzeug Wasser
+
+                        this.imgBlock.src = "img/Ackerboden_2.webp";                //update die Textur
+
+                        this.waterlevel[1] = this.waterlevel[2] - 100;              //und setze einen Startwert für den Block
+
+                        this.status = STATUS.WATERED;                               //update in den nächsten Status
+                    }
+                    break;
+
+                /*anpflanzen*/
+
+                case STATUS.WATERED:
+                    if (_tool == "pumpkinseed" && (_itemshop.item[9].amount > 0)) { //wenn Werkzeug Kürbis und genügent vorhanden ist
+
+                        _itemshop.item[9].amount--;                                 //verwende ein Kürbiskern
+                        _itemshop.updateUI();                                       //und update den shop
+
+                        this.plant = new Plant("pumpkinseed", this.position);       //Kapsel die Pflanzen in den Block
+
+                        this.status = STATUS.GROW;                                  //update für den nächsten Status
+                    }
+
+                    if (_tool == "carrotseed" && (_itemshop.item[11].amount > 0)) {
+
+                        _itemshop.item[11].amount--;
+                        _itemshop.updateUI();
+
+                        this.plant = new Plant("carrotseed", this.position);
+
+                        this.status = STATUS.GROW;
+                    }
+                    if (_tool == "potatoseed" && (_itemshop.item[10].amount > 0)) {
+
+                        _itemshop.item[10].amount--;
+                        _itemshop.updateUI();
+
+                        this.plant = new Plant("potatoseed", this.position);
+
+                        this.status = STATUS.GROW;
+                    }
+                    if (_tool == "beetrootseed" && (_itemshop.item[7].amount > 0)) {
+
+                        _itemshop.item[7].amount--;
+                        _itemshop.updateUI();
+
+                        this.plant = new Plant("beetrootseed", this.position);
+
+                        this.status = STATUS.GROW;
+                    }
+                    if (_tool == "wheatseed" && (_itemshop.item[8].amount > 0)) {
+
+                        _itemshop.item[8].amount--;
+                        _itemshop.updateUI();
+
+                        this.plant = new Plant("wheatseed", this.position);
+
+                        this.status = STATUS.GROW;
+                    }
+                    break;
+                case STATUS.GROW:
+
+                    if (_tool == "water") {                                             //update das Wasserlevel des blocks mit 100
+                        this.waterlevel[1] += 100;
+                    }
+
+                    if (_tool == "fertilizer" && (_itemshop.item[5].amount > 0)) {      //update das Düngerlevel des blocks mit 100
+
+                        _itemshop.item[5].amount--;
+                        _itemshop.updateUI();
+
+                        this.fertilizerlevel[1] += 100;
+                    }
+
+                    if (_tool == "pesticide" && (_itemshop.item[6].amount > 0) && (this.plant.bee.length > 0)) {    //wenn das Werkzeug Pestizide ist, mehr als 1 biene im Feld ist und genügent Pestizide vorhanden sind
+
+                        _itemshop.item[6].amount--;                                                                 //update die anzahl der Pestizide im Inventar
+
+                        _itemshop.updateUI();                                                                       //update den Itemshop           
+                        this.killBee();                                                                             //und Töte eine Biene
+                    }
+
+                    break;
+
+
+
+                case STATUS.READY:
+
+                    if (_tool == "pesticide" && (_itemshop.item[6].amount > 0) && (this.plant.bee.length > 0)) {    //wenn das Werkzeug Pestizide ist, mehr als 1 biene im Feld ist und genügent Pestizide vorhanden sind
+
+                        _itemshop.item[6].amount--;
+                        _itemshop.updateUI();                                                                       //update den shop
+
+                        this.killBee();                                                                             //töte eine Biene
+                    }
+                    if ((_tool == "sell") && this.sell == true) {                                                   //wenn das Werkzeug ist verkaufen und keine Bienen auf dem feld sind
+
+                        _itemshop.sell(this.plant.seed.substring(0, this.plant.seed.length - 4));                   //dann verkauf dieses Item
+                        this.kill = true;                                                                           //und zerstöre den Block
+                    }
+                    break;
             }
         }
-        drawPath(): void {
-            //ctx.drawImage(this.imgBlock, 0, 0);
-            //ctx.beginPath();
+
+        public setHover(): void {
+            this.hover = true;
+        }
+        public clearHover(): void {
+            this.hover = false;
+        }
+
+
+
+        private drawPath(): void {
             this.path.moveTo(16 + this.position.x, 67 + this.position.y);
             this.path.lineTo(150 + this.position.x, 0 + this.position.y);
             this.path.lineTo(284 + this.position.x, 67 + this.position.y);
             this.path.lineTo(150 + this.position.x, 2 * 67 + this.position.y);
             this.path.closePath();
+        }
 
-            //ctx.stroke();
+        private updatePests(): void {
+            if (this.plant.bee.length > 2) {        //wenn mehr als 2 bzw 3 Bienen im Feld sind zerstöre den Block
+                this.kill = true;
 
+            }
+            if (this.mobspawner == true) {                  //wenn der mobspawner an ist 
+                this.mobspawn++;
+                if (this.mobspawn >= this.mobspawntime) {   //
+                    this.mobspawn = 0;
+                    this.plant.bee.push(new Mob(new Vector(this.position.x, this.position.y), "block")); //neue block Biene
+                }
+            }
+        }
+        
+        private killBee(): void {
+            this.plant.bee.pop();                       //letztes Biene aus pflanze löschen
+            if (this.plant.bee.length == 0) {           //wenn keine Bienen mehr drinn sind
+                this.mobspawner = false;                //ausschalten des mobspawners
+                this.mobspawn = this.mobspawntime;      //Reset der Spawnzeit für neue Biene
+            }
         }
     }
+
 
 }

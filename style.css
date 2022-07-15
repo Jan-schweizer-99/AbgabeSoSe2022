@@ -2,12 +2,7 @@ body {
   overflow: hidden; /* Hide scrollbars */
   background-color:#2e2e2e;
   color: white;
-  user-select: none; 
-
-}
-body:-webkit-full-screen {
-  width: 100%;
-  height: 100%;
+  user-select: none;
 }
 button.shop {
 	box-shadow: 3px 4px 0px 0px #8a2a21;
