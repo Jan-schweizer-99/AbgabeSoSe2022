@@ -1,72 +1,35 @@
 namespace Gemuesegarten {
     export class Plant {
 
-
-
-        imgPlant: HTMLImageElement = new Image();
-        public blocknumber: number;
-
-        position: Vector = new Vector(0, 0);
-        seed: string;
-
-        growtimecounter: number;
-        growtime: number; //time to grow
-
-        grown: Boolean = false;
-
-        maxgrowlvl: number;
-        public growlvl: number = 0;
-
+        //public blocknumber: number;
         public bee: Mob [] = [];
+        public grown: Boolean = false;
+        
+
+        public seed: string;
 
 
+        protected maxgrowlvl: number;                           //max Texturenumber set in Class Carrot Pumpkin....
+        protected path: string[] = [];                          //path of Texture of plant
 
-        private path: string[] = [];
+        protected growtime: number = 0;                             //time to grow set in Class Carrot Pumpkin....
+        private growtimecounter: number = 0;
 
+        private imgPlant: HTMLImageElement = new Image();     //texture of this plant
+        private position: Vector = new Vector(0, 0);
 
-
+        private  growlvl: number = 0;
 
 
         constructor(_seed: string, _position: Vector) {
 
+            this.seed = _seed;
+
             this.position.x = _position.x;
             this.position.y = _position.y - 155;        //verschiebung in Y richtung
 
-            this.seed = _seed;
-            this.growlvl = 0;
-
-            if (this.seed == "carrotseed") {
-                this.growtime = 100;
-                this.maxgrowlvl = 3;
-                this.path[0] = "img/Carrot/Carrot_Age_";
-            }
-            if (this.seed == "beetrootseed") {
-                this.growtime = 100;
-                this.maxgrowlvl = 3;
-                this.path[0] = "img/Beetroot/Beetroot_Age_";
-            }
-            if (this.seed == "potatoseed") {
-                this.growtime = 100;
-                this.maxgrowlvl = 3;
-                this.path[0] = "img/Potato/Potato_Age_";
-            }
-            if (this.seed == "pumpkinseed") {
-                this.growtime = 100;
-                this.maxgrowlvl = 8;
-                this.path[0] = "img/Pumpkin/Pumpkin_Stem_Age_";
-            }
-            if (this.seed == "wheatseed") {
-                this.growtime = 100;
-                this.maxgrowlvl = 6;
-                this.path[0] = "img/Wheat/Wheat_Age_";
-            }
             this.path[1] = ".webp";
 
-            
-            this.growlvl = 0;
-            this.growtimecounter = 0;
-            //setInterval(this.update, this.growtime);
-            
         }
 
 
@@ -79,7 +42,6 @@ namespace Gemuesegarten {
                 }
 
             }
-            //console.log(this.growlvl);
 
         }
 

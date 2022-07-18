@@ -79,8 +79,6 @@ namespace Gemuesegarten {
 
         public buy(_name: string): void {
 
-            //let itemname: string = _name;
-            
             for (let i: number = 0; i < this.item.length; i++) {        //frage alle seed items ab ob eines richtig 
                 if ((this.item[i].itemname == _name + "seed")) {     //(kleine hilfe) verkette den itemnamen mit dem seed
                     this.buyhelp(i);                                    //öffne kaufhilfe (also ob es kaufbar ist)

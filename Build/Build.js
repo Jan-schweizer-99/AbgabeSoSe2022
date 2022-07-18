@@ -10,35 +10,23 @@ var Gemuesegarten;
     let selectedblock = 0;
     let block = [];
     let bee = [];
-    let beenumber = 4;
+    let beenumber;
     //data for shop 
     let itemShop;
     let item = [];
     let gemamount;
-    let allitems = ["potato", "wheat", "carrot", "beetroot", "pumpkin", "fertilizer", "pesticide", "beetrootseed", "wheatseed", "pumpkinseed", "potatoseed", "carrotseed"];
-    let germanName = ["Kartoffel", "Weizen", "Karotte", "Rote Bete", "Kürbis", "Dünger", "Pestiziede", "Rote Bete", "Weizen", "Kürbis", "kartoffel", "Karotte"];
-    let buy = [false, false, false, false, false, true, true, true, true, true, true, true];
+    //let world: World[] = [];
     function hndLoad(_event) {
-        let index = 0; // Index für Feld-Feld Generator
-        let startpositon = new Gemuesegarten.Vector(660, 150); // start Postion für Feld-Generator
-        let positon = new Gemuesegarten.Vector(134, 67); // verschiebung der blöcke
-        let positondown = new Gemuesegarten.Vector(-134, 67); // Position nach unten für Feld-Generator
+        buildField();
         initslider();
-        for (let i = 0; i < 6; i++) {
-            for (let i = 0; i < 7; i++) {
-                block[index] = new Gemuesegarten.Block(new Gemuesegarten.Vector(startpositon.x + i * positon.x, startpositon.y + i * positon.y), index);
-                index++;
-            }
-            startpositon.add(positondown); //Addiere Startposition in die zweite Reihe
-        }
-        mousepositon = new Gemuesegarten.Vector(0, 0);
+        mousepositon = new Gemuesegarten.Vector(0, 0); // erstelle deine Mausposition
         let canvas = document.querySelector("#canvas");
         let startgame = document.querySelector("button#start");
         let tool = document.querySelector("div#shop");
         let slider = document.querySelector("div#menu");
         let shopbutton = [];
         for (let i = 0; i < 7; i++) { //installing shopbutton listener
-            shopbutton[i] = document.querySelector("button#buy" + allitems[i]);
+            shopbutton[i] = document.querySelector("button#buy" + item[i].itemname);
             shopbutton[i].addEventListener("click", buyItem);
         }
         tool.addEventListener("change", handleChange);
@@ -54,10 +42,26 @@ var Gemuesegarten;
     function buyItem(_event) {
         itemShop.buy(_event.target.id.slice(3));
     }
+    function buildField() {
+        let index = 0; // Index für Feld-Feld Generator
+        let startpositon = new Gemuesegarten.Vector(660, 150); // start Postion für Feld-Generator
+        let positon = new Gemuesegarten.Vector(134, 67); // verschiebung der blöcke
+        let positondown = new Gemuesegarten.Vector(-134, 67); // Position nach unten für Feld-Generator
+        for (let i = 0; i < 6; i++) {
+            for (let i = 0; i < 7; i++) {
+                block[index] = new Gemuesegarten.Block(new Gemuesegarten.Vector(startpositon.x + i * positon.x, startpositon.y + i * positon.y), index);
+                index++;
+            }
+            startpositon.add(positondown); //Addiere Startposition in die zweite Reihe
+        }
+    }
     function initslider() {
-        for (let i = 0; i < allitems.length; i++) {
+        let itemsnames = ["potato", "wheat", "carrot", "beetroot", "pumpkin", "fertilizer", "pesticide", "beetrootseed", "wheatseed", "pumpkinseed", "potatoseed", "carrotseed"];
+        let germanName = ["Kartoffel", "Weizen", "Karotte", "Rote Bete", "Kürbis", "Dünger", "Pestiziede", "Rote Bete", "Weizen", "Kürbis", "kartoffel", "Karotte"];
+        let buy = [false, false, false, false, false, true, true, true, true, true, true, true];
+        for (let i = 0; i < itemsnames.length; i++) {
             item[i] = {
-                itemname: allitems[i],
+                itemname: itemsnames[i],
                 minprice: 0,
                 maxprice: 0,
                 buy: buy[i],
@@ -70,9 +74,9 @@ var Gemuesegarten;
         let beeslabel = document.body.querySelector("#beesLabel");
         let gemAmount = document.body.querySelector("#startgems");
         let gemlabel = document.body.querySelector("#startgemsLabel");
-        for (let i = 0; i < allitems.length; i++) {
-            let slider = document.body.querySelector("#max" + allitems[i] + "Price");
-            let label = document.body.querySelector("#" + allitems[i] + "Label");
+        for (let i = 0; i < itemsnames.length; i++) {
+            let slider = document.body.querySelector("#max" + itemsnames[i] + "Price");
+            let label = document.body.querySelector("#" + itemsnames[i] + "Label");
             //label.innerHTML = nowAmount;
             item[i].maxprice = Number(slider.value);
             item[i].minprice = Number(slider.min);
@@ -90,7 +94,6 @@ var Gemuesegarten;
     }
     function startGame(_event) {
         let startScreen = document.body.querySelector("#menu"); //definiere das slider menü
-        document.body.requestFullscreen(); //starte Vollbild                 
         itemShop = new Gemuesegarten.Shop(gemamount); //erstellen neuen shop
         for (let i = 0; i < item.length; i++) { //schiebe eingestellte slider werte in den shop 
             itemShop.item.push(item[i]);
@@ -98,7 +101,7 @@ var Gemuesegarten;
         itemShop.randomprice(); //generiere einen zufälligen shop preis
         startScreen.style.visibility = "hidden"; //verstecke das slider menü
         for (let i = 0; i < beenumber; i++) { // Instanzierung der Bienen
-            bee[i] = new Gemuesegarten.Mob(new Gemuesegarten.Vector(Math.random() * (1920 - 0) + 0, Math.random() * (1080 - 0) + 0), "world");
+            bee[i] = new Gemuesegarten.Worldbee(new Gemuesegarten.Vector(Math.random() * (1920 - 0) + 0, Math.random() * (1080 - 0) + 0));
         }
         setInterval(update, 40); //stare update funktion
         setInterval(updatetime, 1000); //stare updateshopzeit funktion
@@ -112,8 +115,8 @@ var Gemuesegarten;
         let maxAmount = _event.target.max;
         let name = _event.target.name;
         //progress.value = parseFloat(amount);
-        for (let i = 0; i < allitems.length; i++) {
-            if (name == allitems[i]) {
+        for (let i = 0; i < item.length; i++) {
+            if (name == item[i].itemname) {
                 let label = document.body.querySelector("#" + name + "Label");
                 item[i].maxprice = Number(nowAmount);
                 item[i].minprice = Number(minAmount);
@@ -164,7 +167,7 @@ var Gemuesegarten;
                     if ((block[index].status == Gemuesegarten.STATUS.GROW) || (block[index].status == Gemuesegarten.STATUS.READY)) { //Der Blockzustand im Wachstum oder Fertig und
                         if (block[index].mobspawner == false) { //fals der Mobspawner aus ist
                             block[index].mobspawner = true; //schalte den Mobspawner des Blockes an
-                            bee[i] = new Gemuesegarten.Mob(new Gemuesegarten.Vector(-40, Math.random() * (1080 - 0) + 0), "world"); //und setze die gleiche "Welt" Biene wieder an zurück an eine Random Position 
+                            bee[i] = new Gemuesegarten.Worldbee(new Gemuesegarten.Vector(-40, Math.random() * (1080 - 0) + 0)); //und setze die gleiche "Welt" Biene wieder an zurück an eine Random Position 
                         }
                     }
                 }
@@ -221,6 +224,7 @@ var Gemuesegarten;
         STATUS[STATUS["READY"] = 4] = "READY";
     })(STATUS = Gemuesegarten.STATUS || (Gemuesegarten.STATUS = {}));
     class Block {
+        status; //Status des Blocks
         hover = false; //hoverzustand des Blocks
         blocknumber; //Block nummer für auswertung
         position; //Position des Blocks
@@ -230,7 +234,6 @@ var Gemuesegarten;
         pestlevel;
         kill; //block zerstören aktiv
         sell = false; //Pflanze verkaufbar
-        status; //Status des Blocks
         mobspawner = false; //Mob spawner an falls sich Biene in Pflanze befindet
         mobspawntime = 250; //zeit bis mob spawnt
         mobspawn;
@@ -328,31 +331,31 @@ var Gemuesegarten;
                     if (_tool == "pumpkinseed" && (_itemshop.item[9].amount > 0)) { //wenn Werkzeug Kürbis und genügent vorhanden ist
                         _itemshop.item[9].amount--; //verwende ein Kürbiskern
                         _itemshop.updateUI(); //und update den shop
-                        this.plant = new Gemuesegarten.Plant("pumpkinseed", this.position); //Kapsel die Pflanzen in den Block
+                        this.plant = new Gemuesegarten.Pumpkin("pumpkinseed", this.position); //Kapsel die Pflanzen in den Block
                         this.status = STATUS.GROW; //update für den nächsten Status
                     }
                     if (_tool == "carrotseed" && (_itemshop.item[11].amount > 0)) {
                         _itemshop.item[11].amount--;
                         _itemshop.updateUI();
-                        this.plant = new Gemuesegarten.Plant("carrotseed", this.position);
+                        this.plant = new Gemuesegarten.Carrot("carrotseed", this.position);
                         this.status = STATUS.GROW;
                     }
                     if (_tool == "potatoseed" && (_itemshop.item[10].amount > 0)) {
                         _itemshop.item[10].amount--;
                         _itemshop.updateUI();
-                        this.plant = new Gemuesegarten.Plant("potatoseed", this.position);
+                        this.plant = new Gemuesegarten.Potato("potatoseed", this.position);
                         this.status = STATUS.GROW;
                     }
                     if (_tool == "beetrootseed" && (_itemshop.item[7].amount > 0)) {
                         _itemshop.item[7].amount--;
                         _itemshop.updateUI();
-                        this.plant = new Gemuesegarten.Plant("beetrootseed", this.position);
+                        this.plant = new Gemuesegarten.Beetroot("beetrootseed", this.position);
                         this.status = STATUS.GROW;
                     }
                     if (_tool == "wheatseed" && (_itemshop.item[8].amount > 0)) {
                         _itemshop.item[8].amount--;
                         _itemshop.updateUI();
-                        this.plant = new Gemuesegarten.Plant("wheatseed", this.position);
+                        this.plant = new Gemuesegarten.Wheat("wheatseed", this.position);
                         this.status = STATUS.GROW;
                     }
                     break;
@@ -405,7 +408,8 @@ var Gemuesegarten;
                 this.mobspawn++;
                 if (this.mobspawn >= this.mobspawntime) { //
                     this.mobspawn = 0;
-                    this.plant.bee.push(new Gemuesegarten.Mob(new Gemuesegarten.Vector(this.position.x, this.position.y), "block")); //neue block Biene
+                    //this.plant.bee.push(new Blockbee(new Vector(this.position.x, this.position.y), "block")); //neue block Biene
+                    this.plant.bee.push(new Gemuesegarten.Blockbee(new Gemuesegarten.Vector(this.position.x, this.position.y))); //neue block Biene
                 }
             }
         }
@@ -427,71 +431,32 @@ var Gemuesegarten;
         DIRECTION[DIRECTION["RIGHT"] = 1] = "RIGHT";
         DIRECTION[DIRECTION["UP"] = 2] = "UP";
         DIRECTION[DIRECTION["DOWN"] = 3] = "DOWN";
-    })(DIRECTION || (DIRECTION = {}));
+    })(DIRECTION = Gemuesegarten.DIRECTION || (Gemuesegarten.DIRECTION = {}));
     class Mob {
         position;
-        direction;
-        minpostion;
-        maxpostion;
+        frame;
         imgMob = [];
         mobpath = [];
-        mode;
-        frame;
-        constructor(_position, _mode) {
-            this.mode = _mode;
-            this.frame = 0;
+        minpostion;
+        maxpostion;
+        direction;
+        constructor(_position) {
+            this.frame = 1;
             this.position = _position;
             this.position.y -= 40;
-            if (this.mode == "world") { //weltbiene
-                this.mobpath[0] = "img/bee/world/Bee_types_BE_"; //pfad für Biene
-                this.minpostion = new Gemuesegarten.Vector(-40, -40); //größe des canvases - halbe Biene
-                this.maxpostion = new Gemuesegarten.Vector(1940, 1120); //größe des canvases + halbe Biene
-            }
-            if (this.mode == "block") {
-                this.mobpath[0] = "img/bee/block/Bee_types_BE_"; //pfad start
-                this.minpostion = new Gemuesegarten.Vector(_position.x + 50, _position.y); //minimale grenzen wo die Biene Fliegt
-                this.maxpostion = new Gemuesegarten.Vector(_position.x + 300 - 50, _position.y + 300); //maximale grenze wo die Biene Fliegt
-                this.direction = DIRECTION.RIGHT; //ändere Richtung
-            }
             this.mobpath[1] = ".png"; //Pfad ende
-            for (let i = 0; i <= 8; i++) { //preload für Bilder der der Biene
-                this.imgMob[i] = new Image();
-                this.imgMob[i].src = this.mobpath[0] + i + this.mobpath[1];
-            }
         }
-        update() {
+        updateframe() {
             this.frame++; //add ne frame
             Gemuesegarten.ctx.drawImage(this.imgMob[this.frame], this.position.x - 40, this.position.y - 40); //male Biene
             if (this.frame == 8) { //reset zu frame 0
                 this.frame = 0;
             }
-            if (this.mode == "world") { //wenn es eine Weltbiene ist
-                this.position.x += 4; //geschwindigkeit in x richtung
-                this.position.y += 4; //geschwindigkeit in y richtung
-                if (this.position.y >= this.maxpostion.y) { //wenn die maximale canvas höhe erreicht wurde
-                    this.position.y = this.minpostion.y; //setze die Höhe wieder auf die minimalste
-                }
-                if (this.position.x >= this.maxpostion.x) { //wenn die maximale canvas breite erreicht wurde
-                    this.position.x = this.minpostion.x; //setze die breite wieder auf die minimalste
-                }
-            }
-            if (this.mode == "block") { //wenn es eine Blockbiene ist
-                if (this.direction == DIRECTION.RIGHT) { //und die Richtung Rechts ist
-                    if (this.position.x >= this.maxpostion.x) { //die maximale Position erreicht wurde
-                        this.direction = DIRECTION.LEFT; //ändere die Richtung nach Links
-                    }
-                    else {
-                        this.position.x += 4; //ansonsten fliege weiter nach rechts
-                    }
-                }
-                if (this.direction == DIRECTION.LEFT) { //wenn die Richtung Links ist
-                    if (this.position.x <= this.minpostion.x) { //und die minimalste Position erreicht wurde
-                        this.direction = DIRECTION.RIGHT; //ändere die Richtung nach Rechts
-                    }
-                    else {
-                        this.position.x -= 4; //ansonsten flieg weiter nach links
-                    }
-                }
+        }
+        preloading() {
+            for (let i = 0; i <= 8; i++) { //preload für Bilder der der Biene
+                this.imgMob[i] = new Image();
+                this.imgMob[i].src = this.mobpath[0] + i + this.mobpath[1];
             }
         }
     }
@@ -500,51 +465,22 @@ var Gemuesegarten;
 var Gemuesegarten;
 (function (Gemuesegarten) {
     class Plant {
-        imgPlant = new Image();
-        blocknumber;
-        position = new Gemuesegarten.Vector(0, 0);
-        seed;
-        growtimecounter;
-        growtime; //time to grow
-        grown = false;
-        maxgrowlvl;
-        growlvl = 0;
+        //public blocknumber: number;
         bee = [];
-        path = [];
+        grown = false;
+        seed;
+        maxgrowlvl; //max Texturenumber set in Class Carrot Pumpkin....
+        path = []; //path of Texture of plant
+        growtime = 0; //time to grow set in Class Carrot Pumpkin....
+        growtimecounter = 0;
+        imgPlant = new Image(); //texture of this plant
+        position = new Gemuesegarten.Vector(0, 0);
+        growlvl = 0;
         constructor(_seed, _position) {
+            this.seed = _seed;
             this.position.x = _position.x;
             this.position.y = _position.y - 155; //verschiebung in Y richtung
-            this.seed = _seed;
-            this.growlvl = 0;
-            if (this.seed == "carrotseed") {
-                this.growtime = 100;
-                this.maxgrowlvl = 3;
-                this.path[0] = "img/Carrot/Carrot_Age_";
-            }
-            if (this.seed == "beetrootseed") {
-                this.growtime = 100;
-                this.maxgrowlvl = 3;
-                this.path[0] = "img/Beetroot/Beetroot_Age_";
-            }
-            if (this.seed == "potatoseed") {
-                this.growtime = 100;
-                this.maxgrowlvl = 3;
-                this.path[0] = "img/Potato/Potato_Age_";
-            }
-            if (this.seed == "pumpkinseed") {
-                this.growtime = 100;
-                this.maxgrowlvl = 8;
-                this.path[0] = "img/Pumpkin/Pumpkin_Stem_Age_";
-            }
-            if (this.seed == "wheatseed") {
-                this.growtime = 100;
-                this.maxgrowlvl = 6;
-                this.path[0] = "img/Wheat/Wheat_Age_";
-            }
             this.path[1] = ".webp";
-            this.growlvl = 0;
-            this.growtimecounter = 0;
-            //setInterval(this.update, this.growtime);
         }
         draw() {
             this.imgPlant.src = this.path[0] + this.growlvl + this.path[1];
@@ -554,7 +490,6 @@ var Gemuesegarten;
                     this.bee[i].update();
                 }
             }
-            //console.log(this.growlvl);
         }
         update() {
             this.growtimecounter++;
@@ -626,7 +561,6 @@ var Gemuesegarten;
             }
         }
         buy(_name) {
-            //let itemname: string = _name;
             for (let i = 0; i < this.item.length; i++) { //frage alle seed items ab ob eines richtig 
                 if ((this.item[i].itemname == _name + "seed")) { //(kleine hilfe) verkette den itemnamen mit dem seed
                     this.buyhelp(i); //öffne kaufhilfe (also ob es kaufbar ist)
@@ -675,5 +609,124 @@ var Gemuesegarten;
         }
     }
     Gemuesegarten.Vector = Vector;
+})(Gemuesegarten || (Gemuesegarten = {}));
+var Gemuesegarten;
+(function (Gemuesegarten) {
+    class Blockbee extends Gemuesegarten.Mob {
+        constructor(_position) {
+            super(_position);
+            this.mobpath[0] = "img/bee/block/Bee_types_BE_"; //pfad start
+            this.minpostion = new Gemuesegarten.Vector(_position.x + 50, _position.y); //minimale grenzen wo die Biene Fliegt
+            this.maxpostion = new Gemuesegarten.Vector(_position.x + 300 - 50, _position.y + 300); //maximale grenze wo die Biene Fliegt
+            this.direction = Gemuesegarten.DIRECTION.RIGHT; //ändere Richtung
+            this.preloading();
+        }
+        update() {
+            this.updateframe();
+            if (this.direction == Gemuesegarten.DIRECTION.RIGHT) { //und die Richtung Rechts ist
+                if (this.position.x >= this.maxpostion.x) { //die maximale Position erreicht wurde
+                    this.direction = Gemuesegarten.DIRECTION.LEFT; //ändere die Richtung nach Links
+                }
+                else {
+                    this.position.x += 4; //ansonsten fliege weiter nach rechts
+                }
+            }
+            if (this.direction == Gemuesegarten.DIRECTION.LEFT) { //wenn die Richtung Links ist
+                if (this.position.x <= this.minpostion.x) { //und die minimalste Position erreicht wurde
+                    this.direction = Gemuesegarten.DIRECTION.RIGHT; //ändere die Richtung nach Rechts
+                }
+                else {
+                    this.position.x -= 4; //ansonsten flieg weiter nach links
+                }
+            }
+        }
+    }
+    Gemuesegarten.Blockbee = Blockbee;
+})(Gemuesegarten || (Gemuesegarten = {}));
+var Gemuesegarten;
+(function (Gemuesegarten) {
+    class Worldbee extends Gemuesegarten.Mob {
+        constructor(_position) {
+            super(_position);
+            this.mobpath[0] = "img/bee/world/Bee_types_BE_"; //pfad für Biene
+            this.minpostion = new Gemuesegarten.Vector(-40, -40); //größe des canvases - halbe Biene
+            this.maxpostion = new Gemuesegarten.Vector(1940, 1120); //größe des canvases + halbe Biene
+            this.preloading();
+        }
+        update() {
+            this.updateframe();
+            this.position.x += 4; //geschwindigkeit in x richtung
+            this.position.y += 4; //geschwindigkeit in y richtung
+            if (this.position.y >= this.maxpostion.y) { //wenn die maximale canvas höhe erreicht wurde
+                this.position.y = this.minpostion.y; //setze die Höhe wieder auf die minimalste
+            }
+            if (this.position.x >= this.maxpostion.x) { //wenn die maximale canvas breite erreicht wurde
+                this.position.x = this.minpostion.x; //setze die breite wieder auf die minimalste
+            }
+        }
+    }
+    Gemuesegarten.Worldbee = Worldbee;
+})(Gemuesegarten || (Gemuesegarten = {}));
+var Gemuesegarten;
+(function (Gemuesegarten) {
+    class Beetroot extends Gemuesegarten.Plant {
+        constructor(_seed, _position) {
+            super(_seed, _position);
+            this.growtime = 100;
+            this.maxgrowlvl = 3;
+            this.path[0] = "img/Beetroot/Beetroot_Age_";
+            //console.log("Constructor wird aufgerufen");
+        }
+    }
+    Gemuesegarten.Beetroot = Beetroot;
+})(Gemuesegarten || (Gemuesegarten = {}));
+var Gemuesegarten;
+(function (Gemuesegarten) {
+    class Carrot extends Gemuesegarten.Plant {
+        constructor(_seed, _position) {
+            super(_seed, _position);
+            this.growtime = 100;
+            this.maxgrowlvl = 3;
+            this.path[0] = "img/Carrot/Carrot_Age_";
+        }
+    }
+    Gemuesegarten.Carrot = Carrot;
+})(Gemuesegarten || (Gemuesegarten = {}));
+var Gemuesegarten;
+(function (Gemuesegarten) {
+    class Potato extends Gemuesegarten.Plant {
+        constructor(_seed, _position) {
+            super(_seed, _position);
+            this.growtime = 100;
+            this.maxgrowlvl = 3;
+            this.path[0] = "img/Potato/Potato_Age_";
+        }
+    }
+    Gemuesegarten.Potato = Potato;
+})(Gemuesegarten || (Gemuesegarten = {}));
+var Gemuesegarten;
+(function (Gemuesegarten) {
+    class Pumpkin extends Gemuesegarten.Plant {
+        constructor(_seed, _position) {
+            super(_seed, _position);
+            this.growtime = 60;
+            this.maxgrowlvl = 8;
+            this.path[0] = "img/Pumpkin/Pumpkin_Stem_Age_";
+        }
+    }
+    Gemuesegarten.Pumpkin = Pumpkin;
+})(Gemuesegarten || (Gemuesegarten = {}));
+var Gemuesegarten;
+(function (Gemuesegarten) {
+    class Wheat extends Gemuesegarten.Plant {
+        constructor(_seed, _position) {
+            super(_seed, _position);
+            this.growtime = 80;
+            this.maxgrowlvl = 6;
+            this.path[0] = "img/Wheat/Wheat_Age_";
+            console.log("der HUSO FUNZT");
+        }
+    }
+    Gemuesegarten.Wheat = Wheat;
 })(Gemuesegarten || (Gemuesegarten = {}));
 //# sourceMappingURL=Build.js.map

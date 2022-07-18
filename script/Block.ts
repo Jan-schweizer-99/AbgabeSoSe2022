@@ -8,8 +8,7 @@ namespace Gemuesegarten {
     }
     export class Block {
 
-
-
+        public status: STATUS;              //Status des Blocks
 
         public hover: boolean = false;              //hoverzustand des Blocks
 
@@ -25,7 +24,6 @@ namespace Gemuesegarten {
         public kill: Boolean;               //block zerstören aktiv
         public sell: Boolean = false;       //Pflanze verkaufbar
 
-        public status: STATUS;              //Status des Blocks
 
         public mobspawner: boolean = false; //Mob spawner an falls sich Biene in Pflanze befindet
 
@@ -41,7 +39,6 @@ namespace Gemuesegarten {
 
 
         constructor(_position: Vector, _blocknumber: number) {
-
             this.mobspawn = this.mobspawntime;
             this.status = STATUS.DEFAULT;
             this.blocknumber = _blocknumber;
@@ -175,7 +172,7 @@ namespace Gemuesegarten {
                         _itemshop.item[9].amount--;                                 //verwende ein Kürbiskern
                         _itemshop.updateUI();                                       //und update den shop
 
-                        this.plant = new Plant("pumpkinseed", this.position);       //Kapsel die Pflanzen in den Block
+                        this.plant = new Pumpkin("pumpkinseed", this.position);       //Kapsel die Pflanzen in den Block
 
                         this.status = STATUS.GROW;                                  //update für den nächsten Status
                     }
@@ -185,7 +182,7 @@ namespace Gemuesegarten {
                         _itemshop.item[11].amount--;
                         _itemshop.updateUI();
 
-                        this.plant = new Plant("carrotseed", this.position);
+                        this.plant = new Carrot("carrotseed", this.position);
 
                         this.status = STATUS.GROW;
                     }
@@ -194,25 +191,28 @@ namespace Gemuesegarten {
                         _itemshop.item[10].amount--;
                         _itemshop.updateUI();
 
-                        this.plant = new Plant("potatoseed", this.position);
+                        this.plant = new Potato("potatoseed", this.position);
 
                         this.status = STATUS.GROW;
                     }
+
                     if (_tool == "beetrootseed" && (_itemshop.item[7].amount > 0)) {
 
                         _itemshop.item[7].amount--;
                         _itemshop.updateUI();
 
-                        this.plant = new Plant("beetrootseed", this.position);
+                        this.plant = new Beetroot("beetrootseed", this.position);
 
                         this.status = STATUS.GROW;
                     }
+
+                    
                     if (_tool == "wheatseed" && (_itemshop.item[8].amount > 0)) {
 
                         _itemshop.item[8].amount--;
                         _itemshop.updateUI();
 
-                        this.plant = new Plant("wheatseed", this.position);
+                        this.plant = new Wheat("wheatseed", this.position);
 
                         this.status = STATUS.GROW;
                     }
@@ -240,8 +240,6 @@ namespace Gemuesegarten {
                     }
 
                     break;
-
-
 
                 case STATUS.READY:
 
@@ -287,7 +285,8 @@ namespace Gemuesegarten {
                 this.mobspawn++;
                 if (this.mobspawn >= this.mobspawntime) {   //
                     this.mobspawn = 0;
-                    this.plant.bee.push(new Mob(new Vector(this.position.x, this.position.y), "block")); //neue block Biene
+                    //this.plant.bee.push(new Blockbee(new Vector(this.position.x, this.position.y), "block")); //neue block Biene
+                    this.plant.bee.push(new Blockbee(new Vector(this.position.x, this.position.y))); //neue block Biene
                 }
             }
         }

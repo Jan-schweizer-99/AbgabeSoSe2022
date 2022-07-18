@@ -11,6 +11,7 @@ declare namespace Gemuesegarten {
         READY = 4
     }
     class Block {
+        status: STATUS;
         hover: boolean;
         blocknumber: number;
         position: Vector;
@@ -20,7 +21,6 @@ declare namespace Gemuesegarten {
         pestlevel: number;
         kill: Boolean;
         sell: Boolean;
-        status: STATUS;
         mobspawner: boolean;
         private mobspawntime;
         private mobspawn;
@@ -37,32 +37,38 @@ declare namespace Gemuesegarten {
     }
 }
 declare namespace Gemuesegarten {
-    class Mob {
+    enum DIRECTION {
+        LEFT = 0,
+        RIGHT = 1,
+        UP = 2,
+        DOWN = 3
+    }
+    abstract class Mob {
         position: Vector;
-        private direction;
-        private minpostion;
-        private maxpostion;
-        private imgMob;
-        private mobpath;
-        private mode;
-        private frame;
-        constructor(_position: Vector, _mode: string);
-        update(): void;
+        protected frame: number;
+        protected imgMob: HTMLImageElement[];
+        protected mobpath: string[];
+        protected minpostion: Vector;
+        protected maxpostion: Vector;
+        protected direction: DIRECTION;
+        constructor(_position: Vector);
+        abstract update(): void;
+        protected updateframe(): void;
+        protected preloading(): void;
     }
 }
 declare namespace Gemuesegarten {
     class Plant {
-        imgPlant: HTMLImageElement;
-        blocknumber: number;
-        position: Vector;
-        seed: string;
-        growtimecounter: number;
-        growtime: number;
-        grown: Boolean;
-        maxgrowlvl: number;
-        growlvl: number;
         bee: Mob[];
-        private path;
+        grown: Boolean;
+        seed: string;
+        protected maxgrowlvl: number;
+        protected path: string[];
+        protected growtime: number;
+        private growtimecounter;
+        private imgPlant;
+        private position;
+        private growlvl;
         constructor(_seed: string, _position: Vector);
         draw(): void;
         update(): void;
@@ -101,5 +107,42 @@ declare namespace Gemuesegarten {
         scale(_factor: number): void;
         add(_addend: Vector): void;
         copy(): Vector;
+    }
+}
+declare namespace Gemuesegarten {
+    class Blockbee extends Mob {
+        constructor(_position: Vector);
+        update(): void;
+    }
+}
+declare namespace Gemuesegarten {
+    class Worldbee extends Mob {
+        constructor(_position: Vector);
+        update(): void;
+    }
+}
+declare namespace Gemuesegarten {
+    class Beetroot extends Plant {
+        constructor(_seed: string, _position: Vector);
+    }
+}
+declare namespace Gemuesegarten {
+    class Carrot extends Plant {
+        constructor(_seed: string, _position: Vector);
+    }
+}
+declare namespace Gemuesegarten {
+    class Potato extends Plant {
+        constructor(_seed: string, _position: Vector);
+    }
+}
+declare namespace Gemuesegarten {
+    class Pumpkin extends Plant {
+        constructor(_seed: string, _position: Vector);
+    }
+}
+declare namespace Gemuesegarten {
+    class Wheat extends Plant {
+        constructor(_seed: string, _position: Vector);
     }
 }

@@ -15,42 +15,24 @@ namespace Gemuesegarten {
 
     let block: Block[] = [];
     let bee: Mob[] = [];
-    let beenumber: number = 4;
+    let beenumber: number;
 
     //data for shop 
     let itemShop: Shop;
     let item: ITEM[] = [];
     let gemamount: number;
-    let allitems: string[] = ["potato", "wheat", "carrot", "beetroot", "pumpkin", "fertilizer", "pesticide", "beetrootseed", "wheatseed", "pumpkinseed", "potatoseed", "carrotseed"];
-    let germanName: string[] = ["Kartoffel", "Weizen", "Karotte", "Rote Bete", "Kürbis", "Dünger", "Pestiziede", "Rote Bete", "Weizen", "Kürbis", "kartoffel", "Karotte"];
-    let buy: boolean[] = [false, false, false, false, false, true, true, true, true, true, true, true];
+    //let world: World[] = [];
+
     
 
 
     function hndLoad(_event: Event): void {
-        let index: number = 0;                                                                                      // Index für Feld-Feld Generator
+
+        buildField();
+        initslider();       
+        mousepositon = new Vector(0, 0); // erstelle deine Mausposition
 
 
-        let startpositon: Vector = new Vector(660, 150);                                                            // start Postion für Feld-Generator
-        let positon: Vector = new Vector(134, 67);                                                                  // verschiebung der blöcke
-        let positondown: Vector = new Vector(-134, 67);                                                             // Position nach unten für Feld-Generator
-
-
-        initslider();           
-
-        for (let i: number = 0; i < 6; i++) {
-            for (let i: number = 0; i < 7; i++) {
-
-                block[index] = new Block(new Vector(startpositon.x + i * positon.x, startpositon.y + i * positon.y), index);
-                index++;
-            }
-
-            startpositon.add(positondown);                                                                                      //Addiere Startposition in die zweite Reihe
-        }
-
-
-
-        mousepositon = new Vector(0, 0);
         let canvas: HTMLCanvasElement = <HTMLCanvasElement>document.querySelector("#canvas");
         let startgame: HTMLButtonElement = <HTMLButtonElement>document.querySelector("button#start");
         let tool: HTMLInputElement = <HTMLInputElement>document.querySelector("div#shop");
@@ -59,7 +41,7 @@ namespace Gemuesegarten {
         let shopbutton: HTMLButtonElement[] = [];
 
         for (let i: number = 0; i < 7; i++) {                                                       //installing shopbutton listener
-            shopbutton[i] = <HTMLButtonElement>document.querySelector("button#buy" + allitems[i]);
+            shopbutton[i] = <HTMLButtonElement>document.querySelector("button#buy" + item[i].itemname);
             shopbutton[i].addEventListener("click", buyItem);
         }
 
@@ -81,10 +63,34 @@ namespace Gemuesegarten {
     function buyItem(_event: Event): void {
         itemShop.buy((_event.target as Element).id.slice(3));
     }
+    function buildField(): void {
+        let index: number = 0;                                                                                      // Index für Feld-Feld Generator
+
+
+        let startpositon: Vector = new Vector(660, 150);                                                            // start Postion für Feld-Generator
+        let positon: Vector = new Vector(134, 67);                                                                  // verschiebung der blöcke
+        let positondown: Vector = new Vector(-134, 67);                                                             // Position nach unten für Feld-Generator
+
+
+    
+
+        for (let i: number = 0; i < 6; i++) {
+            for (let i: number = 0; i < 7; i++) {
+
+                block[index] = new Block(new Vector(startpositon.x + i * positon.x, startpositon.y + i * positon.y), index);
+                index++;
+            }
+
+            startpositon.add(positondown);                                                                                      //Addiere Startposition in die zweite Reihe
+        }
+    }
     function initslider(): void {
-        for (let i: number = 0; i < allitems.length; i++) {
+        let itemsnames: string[] = ["potato", "wheat", "carrot", "beetroot", "pumpkin", "fertilizer", "pesticide", "beetrootseed", "wheatseed", "pumpkinseed", "potatoseed", "carrotseed"];
+        let germanName: string[] = ["Kartoffel", "Weizen", "Karotte", "Rote Bete", "Kürbis", "Dünger", "Pestiziede", "Rote Bete", "Weizen", "Kürbis", "kartoffel", "Karotte"];
+        let buy: boolean[] = [false, false, false, false, false, true, true, true, true, true, true, true];
+        for (let i: number = 0; i < itemsnames.length; i++) {
             item[i] = {
-                itemname: allitems[i],
+                itemname: itemsnames[i],
                 minprice: 0,
                 maxprice: 0,
                 buy: buy[i],
@@ -98,10 +104,10 @@ namespace Gemuesegarten {
         let gemAmount: HTMLInputElement = <HTMLInputElement>document.body.querySelector("#startgems");
         let gemlabel: HTMLParagraphElement = <HTMLParagraphElement>document.body.querySelector("#startgemsLabel");
         
-        for (let i: number = 0; i < allitems.length; i++) {
+        for (let i: number = 0; i < itemsnames.length; i++) {
 
-            let slider: HTMLInputElement = <HTMLInputElement>document.body.querySelector("#max" + allitems[i] + "Price");
-            let label: HTMLParagraphElement = <HTMLParagraphElement>document.body.querySelector("#" + allitems[i] + "Label");
+            let slider: HTMLInputElement = <HTMLInputElement>document.body.querySelector("#max" + itemsnames[i] + "Price");
+            let label: HTMLParagraphElement = <HTMLParagraphElement>document.body.querySelector("#" + itemsnames[i] + "Label");
             //label.innerHTML = nowAmount;
             item[i].maxprice = Number(slider.value);
             item[i].minprice = Number(slider.min);
@@ -118,12 +124,11 @@ namespace Gemuesegarten {
         beenumber = Number(beeAmount.value);
         gemamount = Number(gemAmount.value);
     }
-    
+
     function startGame(_event: Event): void {             //start des spieles
         
         let startScreen: HTMLDivElement = <HTMLDivElement>document.body.querySelector("#menu");       //definiere das slider menü
 
-        document.body.requestFullscreen();                //starte Vollbild                 
         itemShop = new Shop(gemamount);                   //erstellen neuen shop
         for (let i: number = 0; i < item.length; i++) {   //schiebe eingestellte slider werte in den shop 
             itemShop.item.push(item[i]);
@@ -131,7 +136,7 @@ namespace Gemuesegarten {
         itemShop.randomprice();                           //generiere einen zufälligen shop preis
         startScreen.style.visibility = "hidden";          //verstecke das slider menü
         for (let i: number = 0; i < beenumber; i++) {     // Instanzierung der Bienen
-            bee[i] = new Mob(new Vector(Math.random() * (1920 - 0) + 0, Math.random() * (1080 - 0) + 0), "world");
+            bee[i] = new Worldbee(new Vector(Math.random() * (1920 - 0) + 0, Math.random() * (1080 - 0) + 0));
         }
         setInterval(update, 40);                          //stare update funktion
         setInterval(updatetime, 1000);                    //stare updateshopzeit funktion
@@ -150,8 +155,8 @@ namespace Gemuesegarten {
         let name: string = (<HTMLInputElement>_event.target).name;
         //progress.value = parseFloat(amount);
 
-        for (let i: number = 0; i < allitems.length; i++) {
-            if (name == allitems[i]) {
+        for (let i: number = 0; i < item.length; i++) {
+            if (name == item[i].itemname) {
                 let label: HTMLParagraphElement = <HTMLParagraphElement>document.body.querySelector("#" + name + "Label");
 
                 item[i].maxprice = Number(nowAmount);
@@ -216,7 +221,7 @@ namespace Gemuesegarten {
                     if ((block[index].status == STATUS.GROW) || (block[index].status == STATUS.READY)) {                            //Der Blockzustand im Wachstum oder Fertig und
                         if (block[index].mobspawner == false) {                                                                     //fals der Mobspawner aus ist
                             block[index].mobspawner = true;                                                                         //schalte den Mobspawner des Blockes an
-                            bee[i] = new Mob(new Vector(-40, Math.random() * (1080 - 0) + 0), "world");                             //und setze die gleiche "Welt" Biene wieder an zurück an eine Random Position 
+                            bee[i] = new Worldbee(new Vector(-40, Math.random() * (1080 - 0) + 0));                             //und setze die gleiche "Welt" Biene wieder an zurück an eine Random Position 
                         }
                     }
                 }
